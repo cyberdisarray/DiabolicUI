@@ -1,0 +1,488 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/"
+	xmlGUIS:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<!-- 
+		This file contains all the core fonts of the UI.
+		The names of the font objects indicate the font face, size and color if any.
+
+		Suffixes used for color:
+			Title:			255/255, 234/255, 137/255 		<Color r="1.0" g="0.917647058824" b="0.537254901961"/>
+							255/255, 238/255, 170/255
+			Text:			178/255, 163/255,  96/255		<Color r="0.698039215686" g="0.639215686275" b="0.376470588235"/> 
+			Highlight: 		255/255, 255/255, 255/255 		<Color r="1.0" g="1.0" b="1.0"/>
+
+			Gray: 			138/255, 138/255, 138/255		<Color r="0.541176470588" g="0.541176470588" b="0.541176470588"/>
+			Orange: 		255/255, 209/255,  10/255 		<Color r="1.00" g="0.819607843137" b="0.0392156862745"/>
+			DarkOrange: 	229/255, 178/255,  25/255 		<Color r="0.898039215686" g="0.698039215686" b="0.0980392156863"/>
+			Red: 			217/255,  38/255,  10/255 		<Color r="0.850980392157" g="0.149019607843" b="0.0392156862745"/>
+			White: 			240/255, 240/255, 240/255 		<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+			Yellow: 		255/255, 234/255,   0/255 		<Color r="1.0" g="0.917647058824" b="0"/>
+
+	-->
+
+	<!-- Text Sans Regular (10, 12, 14, 16, 18) -->
+	<Font name="DiabolicFont_SansRegular10" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SansRegular10White" inherits="DiabolicFont_SansRegular10" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+		<Font name="DiabolicFont_SansRegular10Text" inherits="DiabolicFont_SansRegular10" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.698039215686" g="0.639215686275" b="0.376470588235"/> 
+		</Font>
+
+	<Font name="DiabolicFont_SansRegular12" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SansRegular12White" inherits="DiabolicFont_SansRegular12" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+		<Font name="DiabolicFont_SansRegular12Title" inherits="DiabolicFont_SansRegular12" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="1.0" g="0.917647058824" b="0.537254901961"/>
+		</Font>
+		<Font name="DiabolicFont_SansRegular12Text" inherits="DiabolicFont_SansRegular12" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.698039215686" g="0.639215686275" b="0.376470588235"/> 
+		</Font>
+
+
+	<Font name="DiabolicFont_SansRegular14" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SansRegular14White" inherits="DiabolicFont_SansRegular14" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+		<Font name="DiabolicFont_SansRegular14Title" inherits="DiabolicFont_SansRegular14" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="1.0" g="0.917647058824" b="0.537254901961"/>
+		</Font>
+	<Font name="DiabolicFont_SansRegular16" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SansRegular16Orange" inherits="DiabolicFont_SansRegular16" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="1.00" g="0.819607843137" b="0.0392156862745"/>
+		</Font>
+		<Font name="DiabolicFont_SansRegular16Red" inherits="DiabolicFont_SansRegular16" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.850980392157" g="0.149019607843" b="0.0392156862745"/>
+		</Font>
+
+
+	<Font name="DiabolicFont_SansRegular18" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="18"/></FontHeight>
+	</Font>
+
+
+
+ 	<!-- Text Sans Bold (8, 10, 12, 13, 14, 16, 18, 28) -->
+	<Font name="DiabolicFont_SansBold8" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="8"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SansBold10" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SansBold10Gray" inherits="DiabolicFont_SansBold10" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.541176470588" g="0.541176470588" b="0.541176470588"/>
+		</Font>
+		<Font name="DiabolicFont_SansBold10White" inherits="DiabolicFont_SansBold10" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+		<Font name="DiabolicFont_SansBold10Title" inherits="DiabolicFont_SansBold10" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="1.0" g="0.917647058824" b="0.537254901961"/>
+		</Font>
+
+
+	<Font name="DiabolicFont_SansBold12" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SansBold12Text" inherits="DiabolicFont_SansBold12" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.698039215686" g="0.639215686275" b="0.376470588235"/> 
+		</Font>
+		<Font name="DiabolicFont_SansBold12White" inherits="DiabolicFont_SansBold12" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+	<Font name="DiabolicFont_SansBold13" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="13"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SansBold14" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SansBold16" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SansBold18" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="18"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SansBold28" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="28"/></FontHeight>
+	</Font>
+
+
+
+ 	<!-- Text Serif Regular (10, 12, 14, 16, 18, 24, 28, 32) -->
+	<Font name="DiabolicFont_SerifRegular10" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SerifRegular12" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SerifRegular14" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SerifRegular16" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_SerifRegular16Orange" inherits="DiabolicFont_SerifRegular16" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="1.00" g="0.819607843137" b="0.0392156862745"/>
+		</Font>
+		<Font name="DiabolicFont_SerifRegular16Red" inherits="DiabolicFont_SerifRegular16" justifyH="CENTER" justifyV="BOTTOM" virtual="true">
+			<Color r="0.850980392157" g="0.149019607843" b="0.0392156862745"/>
+		</Font>
+
+
+	<Font name="DiabolicFont_SerifRegular18" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="18"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SerifRegular24" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="24"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SerifRegular28" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="28"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_SerifRegular32" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="32"/></FontHeight>
+	</Font>
+
+
+
+ 	<!-- Header Regular (14, 16, 18) -->
+	<Font name="DiabolicFont_HeaderRegular14" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardLight.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_HeaderRegular16" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardLight.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_HeaderRegular16White" inherits="DiabolicFont_HeaderRegular16" justifyH="LEFT" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+
+	<Font name="DiabolicFont_HeaderRegular18" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardLight.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="18"/></FontHeight>
+		</Font>
+		<Font name="DiabolicFont_HeaderRegular18Title" inherits="DiabolicFont_HeaderRegular18" justifyH="LEFT" virtual="true">
+			<Color r="1.0" g="0.917647058824" b="0.537254901961"/>
+		</Font>
+		<Font name="DiabolicFont_HeaderRegular18Text" inherits="DiabolicFont_HeaderRegular18" justifyH="LEFT" virtual="true">
+			<Color r="0.698039215686" g="0.639215686275" b="0.376470588235"/>
+		</Font>
+		<Font name="DiabolicFont_HeaderRegular18White" inherits="DiabolicFont_HeaderRegular18" justifyH="LEFT" virtual="true">
+			<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		</Font>
+		<Font name="DiabolicFont_HeaderRegular18Highlight" inherits="DiabolicFont_HeaderRegular18" justifyH="LEFT" virtual="true">
+			<Color r="1.0" g="1.0" b="1.0"/>
+		</Font>
+
+
+ 	<!-- Header Medium (12, 14, 16, 18, 24, 32) -->
+	<Font name="DiabolicFont_HeaderBold12" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardMedium.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_HeaderBold14" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardMedium.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_HeaderBold16" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardMedium.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_HeaderBold18" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardMedium.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="18"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_HeaderBold24" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardMedium.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="24"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_HeaderBold32" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardMedium.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-1.0" y="-1.0"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="32"/></FontHeight>
+	</Font>
+
+
+
+	<!-- 
+
+	<Font name="DiabolicFont_TooltipHeaderFont" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardLight.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipHeaderFontSmall" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardLight.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+	</Font>
+	
+	<Font name="DiabolicFont_TooltipFont" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipFontSmall" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipFontLarge" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="13"/></FontHeight>
+	</Font>
+
+	<Font name="DiabolicFont_TooltipFontRight" inherits="DiabolicTooltipNormal" justifyH="RIGHT" virtual="true">
+	</Font>
+	<Font name="DiabolicTooltipNormalRightSmall" inherits="DiabolicTooltipNormalSmall" justifyH="RIGHT" virtual="true">
+	</Font>
+
+	<Font name="DiabolicFont_TooltipFontSmall" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+	</Font>
+	
+	<Font name="DiabolicFont_TooltipFontVerySmall" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+	</Font>
+
+	<Font name="DiabolicFont_TooltipFontDescription" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Italic.ttf" justifyH="LEFT" virtual="true"> 
+		<Color r="1.320610687022901" g="0.5137254901960784" b="0.3529411764705882"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipFontDescriptionSmall" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Italic.ttf" justifyH="LEFT" virtual="true">
+		<Color r="1.320610687022901" g="0.5137254901960784" b="0.3529411764705882"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="10"/></FontHeight>
+	</Font>
+	
+	<Font name="DiabolicFont_TooltipDPS" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Color r="1.0" g="1.0" b="1.0"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="32"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipDPSSmall" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Color r="1.0" g="1.0" b="1.0"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="24"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipNumber" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="14"/></FontHeight>
+	</Font>
+	<Font name="DiabolicFont_TooltipNumberRight" inherits="DiabolicFont_TooltipNumber" justifyH="RIGHT" virtual="true">
+	</Font>
+
+	<Font name="DiabolicWatchFrameHeader" font="Interface\AddOns\DiabolicUI\media\fonts\ExocetBlizzardLight.ttf" justifyH="LEFT" virtual="true">
+		<Color r="1.0" g="0.9176470588235294" b="0.5372549019607843"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="16"/></FontHeight>
+	</Font>
+	
+	<Font name="DiabolicWatchFrameNormal" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Color r="0.5" g="0.5" b="0.5"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="1"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+	</Font>
+	
+	
+
+	<Font name="DiabolicDialogNormal" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSans-Bold.ttf" justifyH="LEFT" virtual="true">
+		<Color r="0.941176470588" g="0.941176470588" b="0.941176470588"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="12"/></FontHeight>
+	</Font>
+
+	<Font name="DiabolicDialogNumberLarge" font="Interface\AddOns\DiabolicUI\media\fonts\NotoSerif-Regular.ttf" justifyH="LEFT" virtual="true">
+		<Color r="1.0" g="1.0" b="1.0"/>
+		<Shadow>
+			<Offset><AbsDimension x="-0.75" y="-0.75"/></Offset>
+			<Color r="0" g="0" b="0" a="0.75"/>
+		</Shadow>
+		<FontHeight><AbsValue val="18"/></FontHeight>
+	</Font>
+	
+	<Font name="DiabolicTooltipNormalWhite" inherits="DiabolicTooltipNormal" virtual="true">
+		<Color r="1" g="1" b="1" />
+	</Font>
+	
+	<Font name="DiabolicTooltipNormalBlue" inherits="DiabolicTooltipNormal" virtual="true">
+		<Color r="0.4745098039215686" g="0.4745098039215686" b="0.8313725490196078" />
+	</Font>
+
+	<Font name="DiabolicTooltipNormalLightBlue" inherits="DiabolicTooltipNormal" virtual="true">
+		<Color r="0.7411764705882353" g="0.6509803921568627" b="0.8588235294117647" />
+	</Font>
+
+	<Font name="DiabolicTooltipNormalYellow" inherits="DiabolicTooltipNormal" virtual="true">
+		<Color r="0.8705882352941176" g="0.8235294117647059" b="0.6705882352941176" />
+	</Font>
+
+	<Font name="DiabolicTooltipFlavor" inherits="DiabolicTooltipNormal" virtual="true">
+		<Color r="0.6627450980392157" g="0.596078431372549" b="0.4666666666666667" />
+	</Font>
+	-->
+	
+</Ui>
