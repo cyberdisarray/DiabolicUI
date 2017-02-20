@@ -21,6 +21,12 @@ local ENGINE_LEGION = Engine:IsBuild("Legion")
 local PlayerIsRogue = select(2, UnitClass("player")) == "ROGUE" -- to check for rogue anticipation
 local PlayerIsDruid = select(2, UnitClass("player")) == "DRUID" -- we won't be needing this. leaving it here because. druid. master race.
 
+-- Disabling for now, since it's bugged.
+-- *This is just temporary, so the UI doesn't break while I rewrite it! 
+if PlayerIsRogue and ENGINE_MOP then
+	return
+end
+
 local OldAnticipation = PlayerIsRogue and ENGINE_MOP and (not ENGINE_LEGION)
 local NewAnticipation = PlayerIsRogue and ENGINE_LEGION -- anticipation changed in Legion, so did combopoints
 
