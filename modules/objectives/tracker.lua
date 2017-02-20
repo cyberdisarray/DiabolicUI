@@ -43,6 +43,7 @@ local GetQuestLogIsAutoComplete = _G.GetQuestLogIsAutoComplete
 local GetQuestLogSpecialItemInfo = _G.GetQuestLogSpecialItemInfo
 local GetQuestLogTitle = _G.GetQuestLogTitle
 local GetQuestWatchInfo = _G.GetQuestWatchInfo
+local GetQuestWorldMapAreaID = _G.GetQuestWorldMapAreaID
 local GetRealZoneText = _G.GetRealZoneText
 local GetSuperTrackedQuestID = _G.GetSuperTrackedQuestID
 local GetWorldQuestWatchInfo = _G.GetWorldQuestWatchInfo
@@ -60,6 +61,8 @@ local SortQuestWatches = _G.SortQuestWatches
 local UnitAffectingCombat = _G.UnitAffectingCombat
 
 -- WoW Frames
+local QuestFrame = _G.QuestFrame
+local QuestFrameAcceptButton = _G.QuestFrameAcceptButton
 local WorldMapFrame = _G.WorldMapFrame
 
 -- WoW Constants
@@ -111,6 +114,9 @@ local BUTTON_BACKDROP = {
 		bottom = -1
 	}
 }
+
+-- Constant indicating the tracker needs an additional update.
+local NEED_UPDATE
 
 -- Constant to avoid auto tracking new quests
 local IGNORE_QUEST
@@ -812,6 +818,19 @@ end
 Module.ParseQuests = function(self, event)
 	local tracker = self.tracker
 
+	-- GetQuestWorldMapAreaID() sets the map to the current zone, 
+	-- so to avoid the WorldMap being "locked", we have to queue 
+	-- updates to when it's hidden again. 
+	-- This will pause our tracker when it's visible, 
+	-- but hopefully it won't be a problem. 
+	-- Will write additional code to simply update existing quests 
+	-- in the future, thus keeping the tracker updated if the user 
+	-- chooses to have the map visible while questing. 
+	if WorldMapFrame:IsShown() then
+		NEED_UPDATE = true
+		return
+	end
+	
 	-- Set the map to the current zone
 	if ENGINE_WOD then
 		local inMicroDungeon = IsPlayerInMicroDungeon()
@@ -822,7 +841,7 @@ Module.ParseQuests = function(self, event)
 			end
 			SortQuestWatches()
 		end
-	else
+	else 
 		if (not WorldMapFrame:IsShown()) and GetCVarBool("questPOI") then
 			SetMapToCurrentZone()
 		end
@@ -850,7 +869,7 @@ Module.ParseQuests = function(self, event)
 		end
 
 		-- This was previously a 0/1 return, but now is true/nil
-		if (isHeader == 0) or (not isHeader) then
+		if ((isHeader == 0) or (not isHeader)) then
 			
 			-- Trying to fix a problem with QuestFrameAcceptButton 
 			-- when auto-accepting quests and the window remains open 
@@ -867,7 +886,7 @@ Module.ParseQuests = function(self, event)
 
 			-- Figure out if the quest is in our current zone or not
 			local mapId, floorNumber = GetQuestWorldMapAreaID(questID)
-			if ((mapID == mapId) or questMapIDOverrides[questID]) and (not (questID == IGNORE_QUEST)) then
+			if (((mapID == mapId) or questMapIDOverrides[questID]) and (not (questID == IGNORE_QUEST))) then
 				local currentQuestData = questData[questID] or {}
 
 				if isComplete then
@@ -1059,7 +1078,7 @@ Module.ParseQuests = function(self, event)
 	end
 
 	-- Update the tracker entries
-	self.tracker:Update()
+	self:UpdateTracker()
 
 	-- Hide it if we have no quests in the current zone
 	self:UpdateTrackerVisibility()
@@ -1074,8 +1093,13 @@ Module.ParseQuests = function(self, event)
 		self:UpdateSuperTracking()
 	end
 
+	-- Reset the forced update flag
+	NEED_UPDATE = nil
 end
 
+Module.UpdateTracker = function(self)
+	self.tracker:Update()
+end
 
 -- Should only be done out of combat. 
 -- To have more control we user our own combat tracking system here, 
@@ -1301,6 +1325,14 @@ Module.OnEvent = function(self, event, ...)
 	self:ParseQuests(event)
 end
 
+Module.ForceUpdate = function(self, event, ...)
+	if (event == "WORLDMAP_HIDE") then
+		if NEED_UPDATE then
+			self:ParseQuests()
+		end
+	end
+end
+
 Module.OnInit = function(self)
 	self.config = self:GetStaticConfig("Objectives").tracker
 	self.db = self:GetConfig("ObjectiveTracker") -- user settings. will save manually tracked quests here later.
@@ -1469,6 +1501,10 @@ Module.OnEnable = function(self)
 		self:RegisterEvent("QUEST_AUTOCOMPLETE", "OnEvent")
 		self:RegisterEvent("QUEST_POI_UPDATE", "OnEvent")
 	end
+
+	-- Our quest parser will forcefully keep the WorldMapFrame set to the current zone, 
+	-- so currently we're queueing updates to when the map is hidden. 
+	WorldMapFrame:HookScript("OnHide", function() self:ForceUpdate("WORLDMAP_HIDE") end)
 
 
 	--[[

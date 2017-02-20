@@ -4,12 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][1.1.23] 2017-02-19
+## [Unreleased][1.1.24] 2017-02-20
 ### Added
 - Added PvP Capture Bars
 
 ### Changed
 - Side actionbars are now only temporarily visible, and works much like a drawer
+
+## [1.1.23] 2017-02-20
+### Fixed
+- Fixed a bug in the QuestTracker that would lock the WorldMapFrame to the current zone 
 
 ## [1.1.22] 2017-02-19
 ### Added

@@ -74,18 +74,18 @@ end
 if not WOD then
 	
 	-- WoW API
-	local WatchFrame_Update = WatchFrame_Update
-	local ShowUIPanel = ShowUIPanel
-	local HideUIPanel = HideUIPanel
-	local WorldMap_ToggleSizeDown = WorldMap_ToggleSizeDown
+	local WatchFrame_Update = _G.WatchFrame_Update
+	local ShowUIPanel = _G.ShowUIPanel
+	local HideUIPanel = _G.HideUIPanel
+	local WorldMap_ToggleSizeDown = _G.WorldMap_ToggleSizeDown
 
 	-- WoW Frames
-	local WorldMapQuestShowObjectives = WorldMapQuestShowObjectives
-	local WorldMapTrackQuest = WorldMapTrackQuest
-	local WorldMapTitleButton = WorldMapTitleButton
-	local WorldMapFrameSizeUpButton = WorldMapFrameSizeUpButton
-	local WorldMapBlobFrame = WorldMapBlobFrame
-	local WorldMapPOIFrame = WorldMapPOIFrame
+	local WorldMapQuestShowObjectives = _G.WorldMapQuestShowObjectives
+	local WorldMapTrackQuest = _G.WorldMapTrackQuest
+	local WorldMapTitleButton = _G.WorldMapTitleButton
+	local WorldMapFrameSizeUpButton = _G.WorldMapFrameSizeUpButton
+	local WorldMapBlobFrame = _G.WorldMapBlobFrame
+	local WorldMapPOIFrame = _G.WorldMapPOIFrame
 
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -180,8 +180,8 @@ end
 -- by opening it once before we login. Thanks TukUI! :)
 -- NB! taiting the GameTooltip taints the spellbook too, so DON'T! o.O
 if WOD then
-	local PetJournal_LoadUI = PetJournal_LoadUI
-	local ToggleFrame = ToggleFrame
+	local PetJournal_LoadUI = _G.PetJournal_LoadUI
+	local ToggleFrame = _G.ToggleFrame
 
 	local frame = CreateFrame("Frame")
 	frame:RegisterEvent("ADDON_LOADED")
@@ -213,9 +213,9 @@ if LEGION then
 	-- The "solution" is to remove events and script handlers that call it while engaged in combat. 
 
 	-- WoW frames & functions
-	local WorldMapFrame = WorldMapFrame
-	local WorldMapFrame_OnHide = WorldMapFrame_OnHide
-	local WorldMapLevelButton_OnClick = WorldMapLevelButton_OnClick
+	local WorldMapFrame = _G.WorldMapFrame
+	local WorldMapFrame_OnHide = _G.WorldMapFrame_OnHide
+	local WorldMapLevelButton_OnClick = _G.WorldMapLevelButton_OnClick
 
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:RegisterEvent("PLAYER_REGEN_ENABLED") 
