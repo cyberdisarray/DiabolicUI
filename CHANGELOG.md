@@ -4,14 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][1.1.25] 2017-02-21
+## [Unreleased][1.1.26] 2017-02-21
 ### Added
 - Added custom scaling options.
 - Added PvP Capture Bars.
 - Added WorldState info (Battleground scores, World PvP score, dungeon waves, etc) to the minimap. 
+- Added a new point based resource system for all classes using such. This also fixes the Rogue combo point bugs.  
 
 ### Changed
 - Side actionbars have changed layout and position, and won't interfere with the quest tracker anymore.
+
+## [1.1.25] 2017-02-21
+### Changed
+- The custom DiabolicUI font objects will now change to region specific versions of the Google Noto font for zhCN, zhTW and koKR realms.
 
 ## [1.1.24] 2017-02-21
 ### Changed

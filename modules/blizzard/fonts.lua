@@ -1,13 +1,14 @@
-local _, Engine = ...
+local ADDON, Engine = ...
 local Module = Engine:NewModule("Fonts")
 
-local gameLocale = GetLocale()
+local gameLocale = Engine:GetGameLocale()
 local isLatin = ({ enUS  = true, enGB = true, deDE = true, esES = true, esMX = true, frFR = true, itIT = true, ptBR = true, ptPT = true })[gameLocale]
 
 -- Client version constants
 local ENGINE_LEGION 	= Engine:IsBuild("Legion")
 local ENGINE_WOD 		= Engine:IsBuild("WoD")
 
+-- Sets up the module font lists
 Module.SetUp = function(self)
 	-- shortcuts to the fonts
 	local config = self:GetStaticConfig("Fonts")
@@ -35,8 +36,24 @@ Module.SetUp = function(self)
 		[fonts.damage] = config.fonts.damage.locales[gameLocale]
 	}
 
+	self.hasReplacement = {}
+	if ENGINE_LEGION then
+		for fontID in pairs(config.fonts) do
+			local localeTable = config.fonts[fontID]
+			if localeTable.replacements then
+				for locale, path in pairs(localeTable.replacements) do
+					if (locale == gameLocale) then
+						self.hasReplacement[fonts[fontID]] = path
+					end
+				end
+			end
+		end
+	end
+
 end
 
+-- Changes the fonts rendered by the game engine 
+-- (These are the fonts rendered directly in the 3D world)
 Module.SetGameEngineFonts = function(self)
 	local canIUse = self.canIUse
 	local fonts = self.fonts
@@ -96,6 +113,8 @@ Module.SetGameEngineFonts = function(self)
 	end
 end
 
+-- Change some of the Blizzard font objects to use the fonts we've chosen.
+-- (These are the fonts rendered by the user interface's 2D engine.)
 Module.SetFontObjects = function(self)
 	local fonts = self.fonts
 	
@@ -118,10 +137,12 @@ Module.SetFontObjects = function(self)
 	-- Legion features much nicer and smoother damage, 
 	-- so we should just leave that as it is. 
 	if not ENGINE_LEGION then
-		self:SetFont(CombatTextFont, self.fonts.damage, 100, "", -2.5, -2.5, .35) 
+		self:SetFont(CombatTextFont, fonts.damage, 100, "", -2.5, -2.5, .35) 
 	end
 
 	-- chat font
+	-- *Choosing not to override this, as the default chat fonts are fairly good 
+	--  and Warcraft/Diablo-looking enough as it is. One of the better Blizzard choices. 
 	self:SetFont(ChatFontNormal, nil, nil, "", -.75, -.75, 1)
 	
 end
@@ -145,9 +166,16 @@ Module.SetFont = function(self, fontObject, font, size, style, shadowX, shadowY,
 	if not style then
 		style = (oldStyle == "OUTLINE") and "THINOUTLINE" or oldStyle 
 	end
-	
+
 	-- don't change the font face if it doesn't support the current locale
-	fontObject:SetFont(self.canIUse[font] and font or oldFont, size, style) 
+	--fontObject:SetFont(self.canIUse[font] and font or self.hasReplacement[font] or oldFont, size, style) 
+	if self.canIUse[font] then
+		fontObject:SetFont(font, size, style) 
+	elseif self.hasReplacement[font] then
+		fontObject:SetFont(self.hasReplacement[font], size, style) 
+	else
+		fontObject:SetFont(oldFont, size, style) 
+	end
 	if shadowX and shadowY then
 		fontObject:SetShadowOffset(shadowX, shadowY)
 		fontObject:SetShadowColor(shadowR or 0, shadowG or 0, shadowB or 0, shadowA or 1)
@@ -162,31 +190,54 @@ end
 
 Module.HookCombatText = function(self)
 	-- combat text
---	COMBAT_TEXT_HEIGHT = 16
---	COMBAT_TEXT_CRIT_MAXHEIGHT = 16
---	COMBAT_TEXT_CRIT_MINHEIGHT = 16
---	COMBAT_TEXT_SCROLLSPEED = 3
-
 	COMBAT_TEXT_HEIGHT = 16
 	COMBAT_TEXT_CRIT_MAXHEIGHT = 16
 	COMBAT_TEXT_CRIT_MINHEIGHT = 16
 	COMBAT_TEXT_SCROLLSPEED = 3
 
 	hooksecurefunc("CombatText_UpdateDisplayedMessages", function() 
---		if COMBAT_TEXT_FLOAT_MODE == "1" then
---			COMBAT_TEXT_LOCATIONS.startY = 484
---			COMBAT_TEXT_LOCATIONS.endY = 709
---		end
+		--if COMBAT_TEXT_FLOAT_MODE == "1" then
+		--	COMBAT_TEXT_LOCATIONS.startY = 484
+		--	COMBAT_TEXT_LOCATIONS.endY = 709
+		--end
 		COMBAT_TEXT_LOCATIONS.startY = 220
 		COMBAT_TEXT_LOCATIONS.endY = 440
 	end)
 end
+
+-- Change the font object of our own custom fonts,
+-- since not all our fonts support all the localized regions. 
+Module.SetEngineFontObjects = function(self)
+	-- Our replacements are only for Asian realms (zhCN, zhTW, koKR), 
+	-- and our fonts are stored in the Microsoft .otf format
+	-- which isn't supported in older versions of WoW. 
+	if not ENGINE_LEGION then
+		return
+	end
+
+	local config = self:GetStaticConfig("Fonts")
+	local fontObjects = config.fontObjects
+	for group in pairs(fontObjects) do
+		local replacement = fontObjects[group].replacements[gameLocale]
+		if replacement then
+			for _,objectName in ipairs(fontObjects[group].objects) do
+				local fontObject = _G[objectName]
+				if fontObject then
+					local font, size, style = fontObject:GetFont()
+					fontObject:SetFont(replacement, size, style)
+				end
+			end
+		end
+	end
+end
+
 
 -- Fonts (especially game engine fonts) need to be set very early in the loading process, 
 -- so for this specific module we'll bypass the normal loading order, and just fire away!
 Module:SetUp()
 Module:SetGameEngineFonts()
 Module:SetFontObjects()
+Module:SetEngineFontObjects()
 
 if IsAddOnLoaded("Blizzard_CombatText") then
 	Module:HookCombatText()

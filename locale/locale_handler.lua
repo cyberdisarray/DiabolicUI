@@ -49,6 +49,7 @@ local L = setmetatable({}, {
 	metatable = false
 })
 
+-- Set a locale 
 Engine.NewLocale = function(self, locale)
 	if locale == fallbackLocale then
 		return L_fallback
@@ -59,6 +60,18 @@ Engine.NewLocale = function(self, locale)
 	end
 end
 
+-- Proxy function to get the game locale, 
+-- allows us to override the locale for testing.
+Engine.GetGameLocale = function(self)
+	return gameLocale
+end
+
+-- Get the currently active locale
 Engine.GetLocale = function(self)
 	return L
 end
+
+-- Uncomment to test another locale 
+-- (Developers only, as it doesn't change the game's own localization)
+--gameLocale = "zhCN"
+
