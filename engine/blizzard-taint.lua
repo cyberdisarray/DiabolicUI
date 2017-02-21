@@ -207,6 +207,11 @@ end
 -- WorldMapFrame Zoom bugs & various taints 
 ---------------------------------------------------------------
 if LEGION then
+	-- Should be noted that this solution only works if the 
+	-- Blizzard_ObjectiveTracker addon is disabled! 
+	-- So this fix probably isn't very helpful for others, 
+	-- unless they too have made their own custom tracker. 
+	-- But feel free to use my code for that in your projects, folks! :D 
 
 	-- The first problem is that WorldMapScrollFrame_ResetZoom doesn't work properly in combat. 
 	-- The second problem is that changing it taints the WorldMap and probably the POI system and Objectives Tracker too.

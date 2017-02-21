@@ -32,9 +32,9 @@ There are thousands of users, but most are content to simply download and use th
 
 ## Buy me a beer
 
-Making stuff like this takes a lot of time and effort, as this user interface as well as my other addons and interfaces are all one-man projects. I do it because I love doing it, because I believe it makes the game better and more enjoyable. But still, a lot of hours is put into it. 
+Making addons and full UIs like mine takes a lot of time and effort, as they're all one-man projects. I do it because I love doing it, because I believe it makes the game better and more enjoyable. But still, a lot of hours are put into it. 
 
-It is in no way required, since my addons always has been and always will be free and fully available to everybody without restrictions. But if you truly wish to support my hard work, a donation goes a long way! Because nothing is quite as motivating as beer money! :D
+Donations are in no way required, since my addons always has been and always will be free and fully available to everybody without restrictions. But if you truly wish to support my hard work, even the smallest contribution goes a long way! Because nothing is quite as motivating as beer money! 
 
 * PayPal: [paypal@cogwerkz.org](https://www.paypal.com/cgi-bin/webscr?hosted_button_id=NYTWF68FKGLL6&item_name=DiabolicUI+%28By+Lars+Norberg%29&cmd=_s-xclick) (click to go straight to PayPal) 
 * PayPal Me: [www.paypal.me/larsnorberg](https://www.paypal.me/larsnorberg)

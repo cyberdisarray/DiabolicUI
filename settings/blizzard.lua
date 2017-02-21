@@ -91,10 +91,13 @@ Engine:NewStaticConfig("Blizzard", {
 		position = { "TOP", "UIParent", "TOP", 0, -300 }, -- default anchor -180
 		padding = 50, -- padding from one bar to the next
 		font_object = DiabolicTooltipNormal,
+		backdrop_texture = path .. [[textures\DiabolicUI_Target_227x15_Backdrop.tga]],
 		texture = path .. [[textures\DiabolicUI_Target_195x13_Border.tga]],
 		texture_size = { 512, 64 },
 		texture_position = { "TOP", 0, 25 },
-		statusbar_texture = path .. [[statusbars\DiabolicUI_StatusBar_512x64_Dark_Warcraft.tga]]
+		statusbar_texture = path .. [[statusbars\DiabolicUI_StatusBar_512x64_Dark_Warcraft.tga]],
+		spark_size = { 128, 128 },
+		spark_texture = path .. [[statusbars\DiabolicUI_StatusBar_128x128_Spark_Warcraft.tga]]
 	},
 	tracker = {
 		togglebutton = {

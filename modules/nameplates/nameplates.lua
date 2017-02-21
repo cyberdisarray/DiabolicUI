@@ -1628,6 +1628,7 @@ end
 
 -- NamePlate Event Handling
 ----------------------------------------------------------
+local hasSetBlizzardSettings
 Module.OnEvent = ENGINE_LEGION and function(self, event, ...)
 	if event == "NAME_PLATE_CREATED" then
 		local namePlateFrameBase = ...
@@ -1661,6 +1662,15 @@ Module.OnEvent = ENGINE_LEGION and function(self, event, ...)
 	elseif event == "UI_SCALE_CHANGED" then
 		self:UpdateAllScales()
 	elseif event == "PLAYER_ENTERING_WORLD" then
+		if (not hasSetBlizzardSettings) then
+			if _G.C_NamePlate then
+				self:UpdateBlizzardSettings()
+			else
+				self:RegisterEvent("ADDON_LOADED", "OnEvent")
+			end
+			hasSetBlizzardSettings = true
+		end
+
 		self:UpdateAllScales()
 		self.Updater:SetScript("OnUpdate", function(_, ...) self:OnUpdate(...) end)
 	elseif event == "PLAYER_LEAVING_WORLD" then
@@ -1675,6 +1685,10 @@ Module.OnEvent = ENGINE_LEGION and function(self, event, ...)
 end
 or ENGINE_WOTLK and function(self, event, ...)
 	if event == "PLAYER_ENTERING_WORLD" then
+		if (not hasSetBlizzardSettings) then
+			self:UpdateBlizzardSettings()
+			hasSetBlizzardSettings = true
+		end
 		self:UpdateAllScales()
 		self.Updater:SetScript("OnUpdate", function(_, ...) self:OnUpdate(...) end)
 	elseif event == "PLAYER_LEAVING_WORLD" then
@@ -1871,6 +1885,16 @@ Module.UpdateBlizzardSettings = ENGINE_LEGION and Engine:Wrap(function(self)
 	local config = self.config
 	local setCVar = SetCVar
 
+	-- Insets at the top and bottom of the screen 
+	-- which the target nameplate will be kept away from. 
+	-- Used to avoid the target plate being overlapped 
+	-- by the target frame or actionbars and keep it in view.
+	setCVar("nameplateLargeTopInset", .22) -- default .1
+	setCVar("nameplateOtherTopInset", .22) -- default .08
+	setCVar("nameplateLargeBottomInset", .22) -- default .15
+	setCVar("nameplateOtherBottomInset", .22) -- default .1
+
+
 	setCVar("nameplateClassResourceTopInset", 0)
 	setCVar("nameplateGlobalScale", 1)
 	setCVar("NamePlateHorizontalScale", 1)
@@ -1878,11 +1902,6 @@ Module.UpdateBlizzardSettings = ENGINE_LEGION and Engine:Wrap(function(self)
 
 	-- Scale modifier for large plates, used for important monsters
 	setCVar("nameplateLargerScale", 1) -- default 1.2
-
-	-- Insets in percentage of the screen height for large plates
-	setCVar("nameplateLargeTopInset", 0) -- default .1
-	setCVar("nameplateLargeBottomInset", 0) -- default .15
-
 
 	-- The maximum distance to show a nameplate at
 	setCVar("nameplateMaxDistance", 100)
@@ -1905,10 +1924,6 @@ Module.UpdateBlizzardSettings = ENGINE_LEGION and Engine:Wrap(function(self)
 
 	-- Show nameplates above heads or at the base (0 or 2)
 	setCVar("nameplateOtherAtBase", 0)
-
-	-- Insets in percentage of the screen height
-	setCVar("nameplateOtherBottomInset", 0) -- default .1
-	setCVar("nameplateOtherTopInset", 0) -- default .08
 
 	-- Scale and Alpha of the selected nameplate (current target)
 	setCVar("nameplateSelectedAlpha", 1) -- default 1
@@ -1953,15 +1968,17 @@ or Engine:Wrap(function(self)
 	local config = self.config
 	local setCVar = SetCVar
 
+	-- These are from which expansion...? /slap myself for not commenting properly!!
+
 	-- we're forcing these from blizzard, but will give custom options through this module
-	setCVar("bloatthreat", 0) -- sale plates based on the gained threat on a mob with multiple threat targets. weird. 
-	setCVar("bloattest", 0) -- weird setting that shrinks plates for values > 0
-	setCVar("bloatnameplates", 0) -- don't change frame size based on threat. it's silly.
-	setCVar("repositionfrequency", 1) -- don't skip frames between updates
+	--setCVar("bloatthreat", 0) -- sale plates based on the gained threat on a mob with multiple threat targets. weird. 
+	--setCVar("bloattest", 0) -- weird setting that shrinks plates for values > 0
+	--setCVar("bloatnameplates", 0) -- don't change frame size based on threat. it's silly.
+	--setCVar("repositionfrequency", 1) -- don't skip frames between updates
 	-- setCVar("ShowClassColorInNameplate", 1) -- display class colors -- leave this to the setup tutorial, let the user decide later
-	setCVar("ShowVKeyCastbar", 1) -- display castbars
-	setCVar("showVKeyCastbarSpellName", 1) -- display spell names on castbars
-	setCVar("showVKeyCastbarOnlyOnTarget", 0) -- display castbars only on your current target
+	--setCVar("ShowVKeyCastbar", 1) -- display castbars
+	--setCVar("showVKeyCastbarSpellName", 1) -- display spell names on castbars
+	--setCVar("showVKeyCastbarOnlyOnTarget", 0) -- display castbars only on your current target
 end)
 
 Module.OnInit = function(self)
@@ -1986,12 +2003,6 @@ Module.OnEnable = function(self)
 	end
 
 	if ENGINE_LEGION then
-		if IsAddOnLoaded("Blizzard_NamePlates") then
-			self:UpdateBlizzardSettings()
-		else
-			self:RegisterEvent("ADDON_LOADED", "OnEvent")
-		end
-
 		-- Detection, showing and hidding
 		self:RegisterEvent("NAME_PLATE_CREATED", "OnEvent")
 		self:RegisterEvent("NAME_PLATE_UNIT_ADDED", "OnEvent")
@@ -2023,6 +2034,7 @@ Module.OnEnable = function(self)
 		self:RegisterEvent("UI_SCALE_CHANGED", "OnEvent")
 		
 	elseif ENGINE_WOTLK then
+		self:UpdateBlizzardSettings()
 
 		-- Update
 		self:RegisterEvent("PLAYER_CONTROL_GAINED", "OnEvent")

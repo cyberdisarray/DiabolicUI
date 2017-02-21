@@ -97,7 +97,7 @@ Module.Skin = function(self, frame)
 	local config = self.config
 
 	local timer = self.timers[frame]
-	timer.frame:SetFrameLevel(timer.frame:GetFrameLevel() + 5)
+	timer.frame:SetFrameLevel(timer.frame:GetFrameLevel() + 10)
 	timer.border:ClearAllPoints()
 	timer.border:SetPoint(unpack(config.texture_position))
 	timer.border:SetSize(unpack(config.texture_size))
@@ -105,6 +105,25 @@ Module.Skin = function(self, frame)
 	timer.msg:SetFontObject(config.font_object)
 	timer.bar:SetStatusBarTexture(config.statusbar_texture)
 	timer.bar:SetFrameLevel(timer.frame:GetFrameLevel() - 5)
+
+	if (not timer.backdrop) then
+		timer.backdrop = CreateFrame("Frame", nil, timer.frame)
+		timer.backdrop:SetAllPoints()
+		timer.backdrop:SetFrameLevel(timer.frame:GetFrameLevel() - 10)
+		timer.backdrop.texture = timer.backdrop:CreateTexture()
+		timer.backdrop.texture:SetDrawLayer("BACKGROUND")
+		timer.backdrop.texture:SetPoint(unpack(config.texture_position))
+		timer.backdrop.texture:SetSize(unpack(config.texture_size))
+		timer.backdrop.texture:SetTexture(config.backdrop_texture)
+	end
+
+	if (not timer.spark) then
+		timer.spark = timer.bar:CreateTexture()
+		timer.spark:SetDrawLayer("OVERLAY")
+		timer.spark:SetPoint("CENTER", timer.bar:GetStatusBarTexture(), "RIGHT", 0, 0)
+		timer.spark:SetSize(config.spark_size[1], timer.bar:GetHeight() + 2)
+		timer.spark:SetTexture(config.spark_texture)
+	end
 	
 	hooksecurefunc(timer.bar, "SetValue", function(...) self:UpdateTimer(frame) end)
 	hooksecurefunc(timer.bar, "SetMinMaxValues", function(...) self:UpdateTimer(frame) end)

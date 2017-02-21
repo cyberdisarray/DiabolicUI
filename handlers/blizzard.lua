@@ -722,13 +722,13 @@ local elements = {
 			-- Will just have to do for now.
 			if _G.CompactPartyFrame then -- 4.0?
 				killUnitFrame(_G.CompactPartyFrame)
-				for i=1, MEMBERS_PER_RAID_GROUP do
+				for i=1, _G.MEMBERS_PER_RAID_GROUP do
 					killUnitFrame(_G["CompactPartyFrameMember" .. i])
 				end	
 			elseif _G.CompactPartyFrame_Generate then -- 4.1?
 				hooksecurefunc("CompactPartyFrame_Generate", function() 
 					killUnitFrame(_G.CompactPartyFrame)
-					for i=1, MEMBERS_PER_RAID_GROUP do
+					for i=1, _G.MEMBERS_PER_RAID_GROUP do
 						killUnitFrame(_G["CompactPartyFrameMember" .. i])
 					end	
 				end)
@@ -756,7 +756,7 @@ local elements = {
 	},
 	WorldState = {
 		OnDisable = function(self)
-			_G.WorldStateAlwaysUpFrame = WorldStateAlwaysUpFrame
+			WorldStateAlwaysUpFrame = _G.WorldStateAlwaysUpFrame
 			WorldStateAlwaysUpFrame:SetParent(UIHider)
 			-- WorldStateAlwaysUpFrame:Hide()
 			WorldStateAlwaysUpFrame:SetScript("OnEvent", nil) 

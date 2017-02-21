@@ -4,12 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][1.1.24] 2017-02-20
+## [Unreleased][1.1.25] 2017-02-21
 ### Added
-- Added PvP Capture Bars
+- Added custom scaling options.
+- Added PvP Capture Bars.
+- Added WorldState info (Battleground scores, World PvP score, dungeon waves, etc) to the minimap. 
 
 ### Changed
-- Side actionbars are now only temporarily visible, and works much like a drawer
+- Side actionbars have changed layout and position, and won't interfere with the quest tracker anymore.
+
+## [1.1.24] 2017-02-21
+### Changed
+- The default scaling of DiabolicUI will now better fit most screen resolutions.
+- The target NamePlate (Legion only) will now be kept below the target unitframe and above the bottom actionbars.
+- Mirror timers (breath, fatigue, etc) now has a dark background and a spark, and looks more like the castbars and unitframes.
+
+## [1.1.23b] 2017-02-20
+### Changed
+- Temporarily disabled the combo point display for Rogues in MoP and above, since this turned out to be bugged.
 
 ## [1.1.23] 2017-02-20
 ### Fixed

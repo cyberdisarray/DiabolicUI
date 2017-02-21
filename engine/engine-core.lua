@@ -162,7 +162,9 @@ local FrameMethods = getmetatable(Frame).__index
 local UICenter = CreateFrame("Frame", nil, UIParent, "SecureHandlerAttributeTemplate")
 UICenter:SetFrameLevel(UIParent:GetFrameLevel())
 UICenter:SetSize(UIParent:GetSize())
-UICenter:SetPoint("CENTER", UIParent, "CENTER")
+UICenter:SetPoint("TOP", UIParent, "TOP")
+UICenter:SetPoint("BOTTOM", UIParent, "BOTTOM")
+--UICenter:SetPoint("CENTER", UIParent, "CENTER")
 
 
 
@@ -1505,19 +1507,17 @@ end
 do
 	local onlyRunOnce 
 
-	local accuracy = 1e4
-	local compareAccuracy = 1e4 -- note that for anything more than 2 decimals will spam reloads on every video options frame opening
-	local pixelPerfectMinimumWidth = 1600 -- for anything less than this, UI (down)scaling will always be used
+	-- A modifier we apply to all scaling, 
+	-- to give the user a good default scale 
+	-- regardless of screen resolution. 
+	local HD_MODIFIER = 1 
+
+	local accuracy = 1e4 -- note that for anything more than 2 decimals will spam reloads on every video options frame opening (unless the slider is disabled, as we're doing)
 	local widescreen = 1.6 -- minimum aspect ratio for a screen to be considered widescreen (16:10)
 	local currentPixelScale = 1 -- initial pixel scale of the UICenter frame 
 	local screenPixelWidth, screenPixelHeight -- on-screen pixel size of the frame
 
-	local get_pixel_resolution = function()
-	end
-
-	local get_resolution = function()
-	end
-
+	-- Returns the current game resolution
 	UICenter.GetResolution = function(self)
 		local resolution
 		if Engine:IsBuild("Legion") then
@@ -1526,7 +1526,6 @@ do
 				monitorIndex = monitorIndex + 1
 				resolution = ({GetScreenResolutions(monitorIndex)})[GetCurrentResolution(monitorIndex)]
 			end
-			--resolution = select(GetCurrentResolution(monitorIndex), GetScreenResolutions(monitorIndex))
 		else
 			resolution = ({GetScreenResolutions()})[GetCurrentResolution()]
 		end
@@ -1541,13 +1540,14 @@ do
 		return screenWidth, screenHeight
 	end
 
+	-- Returns the pixel size of the screen 
+	-- the UICenter frame should be located at.
 	UICenter.GetScreenSize = function(self)
 		local screenWidth, screenHeight = self:GetResolution()
 		if not(screenWidth and screenHeight) then
 			return
 		end
 
-		local usingUIScaling = tonumber(GetCVar("useUiScale"))
 		local aspectRatio = math_round(screenWidth / screenHeight, accuracy)
 
 		-- Somebody using AMD EyeFinity?
@@ -1555,14 +1555,55 @@ do
 		-- 	 and we will simply ignore all other setups. Dual monitors in WoW is just dumb.
 		local viewPortWidth 
 		if aspectRatio >= 3*widescreen then
-			if (screenWidth >= 9840) then viewPortWidth = 3280 end -- WQSXGA
-			if (screenWidth >= 7680) and (screenWidth < 9840) then viewPortWidth = 2560 end -- WQXGA
-			if (screenWidth >= 5760) and (screenWidth < 7680) then viewPortWidth = 1920 end -- WUXGA & HDTV
-			if (screenWidth >= 5040) and (screenWidth < 5760) then viewPortWidth = 1680 end -- WSXGA+
-			if (screenWidth >= 4800) and (screenWidth < 5760) and (screenHeight == 900) then viewPortWidth = 1600 end -- UXGA & HD+
-			if (screenWidth >= 4320) and (screenWidth < 4800) then viewPortWidth = 1440 end -- WSXGA
-			if (screenWidth >= 4080) and (screenWidth < 4320) then viewPortWidth = 1360 end -- WXGA
-			if (screenWidth >= 3840) and (screenWidth < 4080) then viewPortWidth = 1280 end -- SXGA & SXGA (UVGA) & WXGA & HDTV
+			viewPortWidth = math_floor(screenWidth/3)
+		end
+
+		-- Add scaling modifiers for widescreen
+		-- 
+		-- The UI was designed for FHD 1920x1080, 
+		-- so we're scaling to more or less maintain that look,
+		-- in both higher and lower resolutions.
+		if (aspectRatio >= 1.6) then
+			if (viewPortWidth or screenWidth) >= 7680 then
+				HD_MODIFIER = 4
+			elseif (viewPortWidth or screenWidth) >= 3840 then
+				HD_MODIFIER = 2
+			elseif (viewPortWidth or screenWidth) >= 1920 then
+				HD_MODIFIER = 1
+			elseif (viewPortWidth or screenWidth) >= 1600 then
+				HD_MODIFIER = math_round(5/6, accuracy)
+			elseif (viewPortWidth or screenWidth) >= 1280 then
+				HD_MODIFIER = .75
+			else
+				-- smaller screens are just weird
+				HD_MODIFIER = math_round(768/1200, accuracy)
+			end
+		else
+			-- I don't really expect people to be using weird
+			-- super high res 4:3 or 5:4 monitors, 
+			-- but if they do, we're at least ready for them!
+			-- 
+			-- These scales also make the UI fit on tiny old
+			-- standard screens like 800x600 and 1024x768, though, 
+			-- which was sort of the whole point in including them.
+			if (viewPortWidth or screenWidth) >= 7680 then
+				HD_MODIFIER = 4
+			elseif (viewPortWidth or screenWidth) >= 3840 then
+				HD_MODIFIER = 2
+			elseif (viewPortWidth or screenWidth) >= 1920 then
+				HD_MODIFIER = 1
+			elseif (viewPortWidth or screenWidth) >= 1600 then
+				HD_MODIFIER = math_round(5/6, accuracy)
+			elseif (viewPortWidth or screenWidth) >= 1280 then
+				HD_MODIFIER = .75
+			elseif (viewPortWidth or screenWidth) >= 1024 then
+				HD_MODIFIER = math_round(2/3, accuracy)
+			else
+				-- Smaller screens are even weirder here. 
+				-- I mean, 1020x768 or 800x600... really?
+				-- Still, let's support it! :) 
+				HD_MODIFIER = math_round(1/2, accuracy)
+			end
 		end
 		return viewPortWidth or screenWidth, screenHeight
 	end
@@ -1588,26 +1629,29 @@ do
 		local scalar = perfectScale / effectiveScale
 
 		self:SetSize(screenPixelWidth * scalar, screenPixelHeight * scalar)
-
-		-- Debugging, since math makes me dizzy. 
-		--print("pixel scale: ", currentPixelScale)
-		--print("effective scale: ", effectiveScale)
-		--print("perfect scale: ", perfectScale)
-		--print("screenPixelWidth, screenPixelHeight: ", screenPixelWidth, screenPixelHeight)
-		--print("actual size: ", self:GetSize())
 	end
 
 	-- Sets the scale of the UICenter frame, and resizes it to still fill the primary monitor
 	UICenter.SetPixelScale = function(self, scale)
+
+		local screenWidth, screenHeight = self:GetScreenSize() -- this also sets the HD_MODIFIER variable
+		local perfectEffectiveScale = 768/screenHeight -- The virtual WoW screen always has 768 pixel lines
+		local parentEffectiveScale = self:GetParent():GetEffectiveScale()
+		local pixelPerfectScale = perfectEffectiveScale / parentEffectiveScale -- this scale is pixel perfect
+
+		currentPixelScale = pixelPerfectScale * scale * HD_MODIFIER
+
+		self:SetScale(currentPixelScale)
+		self:SetPixelSize(self:GetScreenSize())
+	end
+
+	UICenter.GetSizeOfPixel = function(self)
 		local screenWidth, screenHeight = self:GetScreenSize()
 		local perfectEffectiveScale = 768/screenHeight
 		local parentEffectiveScale = self:GetParent():GetEffectiveScale()
 		local pixelPerfectScale = perfectEffectiveScale / parentEffectiveScale
 
-		currentPixelScale = pixelPerfectScale
-
-		self:SetScale(pixelPerfectScale)
-		self:SetPixelSize(self:GetScreenSize())
+		return pixelPerfectScale
 	end
 
 	UICenter:SetAttribute("_onattributechanged", [=[
@@ -1649,218 +1693,24 @@ do
 
 		local screenWidth, screenHeight = UICenter:GetScreenSize()
 		if not(screenWidth and screenHeight) then
-		--	if not self:IsEventRegistered("PLAYER_ENTERING_WORLD", "UpdateScale") then
-		--		self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateScale")
-		--	end
+			if not self:IsEventRegistered("PLAYER_ENTERING_WORLD", "UpdateScale") then
+				self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateScale")
+			end
 			return 
 		end
 
-		--if event == "PLAYER_ENTERING_WORLD" then
-		--	self:UnregisterEvent("PLAYER_ENTERING_WORLD", "UpdateScale")
-		--end
-
-
-		local accuracy = 1e4
-		local compareAccuracy = 1e4 -- note that for anything more than 2 decimals will spam reloads on every video options frame opening if the scale slider is visible
-		local pixelPerfectMinimumWidth = 1600 -- for anything less than this, UI (down)scaling will always be used
-		local widescreen = 1.6 -- minimum aspect ratio for a screen to be considered widescreen (16:10)
-		local usingUIScaling = tonumber(GetCVar("useUiScale"))
-		local aspectRatio = math_round(screenWidth / screenHeight, accuracy)
-		local highresWideScale = math_round(768/screenHeight, accuracy)
-		local lowresWideScale = math_round(768/1080, accuracy)
-		local lowresBoxScale = math_round(768/1200, accuracy)
+		if event == "PLAYER_ENTERING_WORLD" then
+			self:UnregisterEvent("PLAYER_ENTERING_WORLD", "UpdateScale")
+		end
 
 		-- todo: make secure calls for all of this, so it can be used from a secure menu that works in combat
 		-- 	     probably smart to make the Engine frame attribute driven, and have scale changes applied on attribute change?
 		self:Wrap(function() 
 			-- resize and rescale our parent frame to ignore user UI scale changes, 
 			-- as we have our own setting for this instead
-			UICenter:SetPixelScale(1)
-			--UICenter:SetPixelSize(screenWidth, screenHeight) 
+			UICenter:SetPixelScale(1) -- should add a variable here that's stored between sessions
 		end)()
 
-		-- If the user previously has been queried, 
-		-- and chosen to handle the UI scale themself, 
-		-- then we simply and silenty exit this.
-		--[[
-		if db.hasbeenqueried and not db.autoscale then
-			return
-		end
-
-		local PopUpMessage = self:GetHandler("PopUpMessage")
-		if not PopUpMessage:GetPopUp("ENGINE_UISCALE_RELOAD_NEEDED") then
-			PopUpMessage:RegisterPopUp("ENGINE_UISCALE_RELOAD_NEEDED", {
-				title = L["Attention!"],
-				text = L["The UI scale is wrong, so the graphics might appear fuzzy or pixelated. If you choose to ignore it, you won't be asked about this issue again.|n|nFix this issue now?"],
-				button1 = L["Accept"],
-				button2 = L["Ignore"],
-				OnAccept = function()
-					-- In WoD all cvars became protected in combat, 
-					-- so to be safe and not sorry we're using our 
-					-- out of combat wrapper here.
-					Engine:Wrap(function()
-						if Engine:IsBuild("Cata") then 
-							if screenWidth >= pixelPerfectMinimumWidth then
-								-- In Cataclysm the scaling system changed, 
-								-- and it's sufficient to simply turn off uiscaling for pixel perfection here.
-								if usingUIScaling == 1 then
-									SetCVar("useUiScale", "0")
-								end
-							else
-								-- Even in Cataclysm we still need scaling for tiny resolutions, though.
-								if usingUIScaling ~= 1 then
-									SetCVar("useUiScale", "1")
-								end
-								local current_scale = math_round(tonumber(GetCVar("uiScale")), accuracy)
-								local correct_scale
-								if screenWidth >= pixelPerfectMinimumWidth then
-									correct_scale = highresWideScale
-								else
-									if aspectRatio >= widescreen then
-										correct_scale = lowresWideScale
-									else
-										correct_scale = lowresBoxScale
-									end
-								end
-								if not math_compare(current_scale, correct_scale, compareAccuracy) then
-									SetCVar("uiScale", correct_scale)
-								end
-							end
-						else
-							-- Prior to Cataclysm we needed uiscaling at all times for pixel perfection
-							if usingUIScaling ~= 1 then
-								SetCVar("useUiScale", "1")
-							end
-							-- The required uiscale for pixel perfection was dependant upon resolution, 
-							-- and had to be calculated after the events PLAYER_ALIVE and VARIABLES_LOADED had fired!
-							local current_scale = math_round(tonumber(GetCVar("uiScale")), accuracy)
-							local correct_scale
-							if screenWidth >= pixelPerfectMinimumWidth then
-								correct_scale = highresWideScale
-							else
-								if aspectRatio >= widescreen then
-									correct_scale = lowresWideScale
-								else
-									correct_scale = lowresBoxScale
-								end
-							end
-							if not math_compare(current_scale, correct_scale, compareAccuracy) then
-								SetCVar("uiScale", correct_scale)
-							end
-						end
-						
-						local db = Engine:GetConfig("UI")
-						db.autoscale = true
-						db.hasbeenqueried = true
-						
-						-- From a graphic point of view it would have been sufficient
-						-- to simply reload the graphics engine with RestartGx(), 
-						-- but since changing the uiScale cvar can taint the worldmap
-						-- it's safer with a complete reload here. 
-						ReloadUI()
-					end)()
-				end,
-				OnCancel = function()
-					print(L["You can re-enable the auto scaling by typing |cff448800/diabolic autoscale|r in the chat at any time."])
-					local db = Engine:GetConfig("UI")
-					if db.hasbeenqueried then
-						db.autoscale = false
-						
-						Engine:ReloadUI()
-					else
-						db.autoscale = false
-						db.hasbeenqueried = true
-					end
-				end,
-				timeout = 0,
-				exclusive = 1,
-				whileDead = 1,
-				hideOnEscape = false
-			})
-		
-		end
-
-
-		--------------------------------------------------------------------------------------------------
-		--		Set up the game client for pixel perfection
-		--------------------------------------------------------------------------------------------------
-		local fix
-		local popup = PopUpMessage:GetPopUp("ENGINE_UISCALE_RELOAD_NEEDED")
-
-		if self:IsBuild("Cata") then 
-			if screenWidth >= pixelPerfectMinimumWidth then
-				-- In Cataclysm the scaling system changed, 
-				-- and it's sufficient to simply turn off uiscaling for pixel perfection here.
-				if usingUIScaling == 1 then
-					popup.text = L["UI scaling is activated and needs to be disabled, otherwise you'll might get fuzzy borders or pixelated graphics. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-					fix = true
-				end
-			else
-				-- Even in Cataclysm we still need scaling for tiny resolutions, though.
-				if usingUIScaling ~= 1 then
-					popup.text = L["UI scaling was turned off but needs to be enabled, otherwise you'll might get fuzzy borders or pixelated graphics. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-					fix = true
-				end
-				local current_scale = math_round(tonumber(GetCVar("uiScale")), accuracy)
-				local correct_scale
-				if screenWidth >= pixelPerfectMinimumWidth then
-					correct_scale = highresWideScale
-				else
-					if aspectRatio >= widescreen then
-						correct_scale = lowresWideScale
-					else
-						correct_scale = lowresBoxScale
-					end
-				end
-				if not math_compare(current_scale, correct_scale, compareAccuracy) then
-					if screenWidth >= pixelPerfectMinimumWidth then
-						popup.text = L["The UI scale is wrong, so the graphics might appear fuzzy or pixelated. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-					else
-						popup.text = L["Your resolution is too low for this UI, but the UI scale can still be adjusted to make it fit. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-					end
-					fix = true
-				end
-			end
-		else
-			-- Prior to Cataclysm we needed uiscaling at all times for pixel perfection
-			if usingUIScaling ~= 1 then
-				popup.text = L["UI scaling was turned off but needs to be enabled, otherwise you'll might get fuzzy borders or pixelated graphics. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-				fix = true
-			end
-			local current_scale = math_round(tonumber(GetCVar("uiScale")), accuracy)
-			local correct_scale
-			if screenWidth >= pixelPerfectMinimumWidth then
-				correct_scale = highresWideScale
-			else
-				if aspectRatio >= 1.6 then
-					correct_scale = lowresWideScale
-				else
-					correct_scale = lowresBoxScale
-				end
-			end
-			if not math_compare(current_scale, correct_scale, compareAccuracy) then
-				if screenWidth >= pixelPerfectMinimumWidth then
-					popup.text = L["The UI scale is wrong, so the graphics might appear fuzzy or pixelated. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-				else
-					popup.text = L["Your resolution is too low for this UI, but the UI scale can still be adjusted to make it fit. If you choose to ignore it and handle the UI scaling yourself, you won't be asked about this issue again.|n|nFix this issue now?"]
-				end
-				fix = true
-			end
-		end
-		
-		if fix then
-			-- Note:
-			-- The Engine calls a specific stylesheet here, and semantically it shouldn't.
-			-- Not really any good way of avoiding it, though. 
-			-- So we'll just have to settle for being able 
-			-- to shield the Handlers from the stylesheets instead. 
-			PopUpMessage:ShowPopUp("ENGINE_UISCALE_RELOAD_NEEDED", self:GetStaticConfig("UI").popup) 
-		end
-		
-		]]--
-
-		-- forcefully kill the blizzard UI scale slider
-		-- we're adding our own for both the blizz UI and ours to our own options
 		self:KillBlizzard()
 	end
 
