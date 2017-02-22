@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][1.1.26] 2017-02-21
+## [Unreleased][1.1.27] 2017-02-21
 ### Added
 - Added custom scaling options.
 - Added PvP Capture Bars.
@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Side actionbars have changed layout and position, and won't interfere with the quest tracker anymore.
+
+## [1.1.26] 2017-02-21
+### Added
+- Slightly styled the /fstack and /eventtrace frames, mainly because I use them a lot and wanted a look that fit the UI.
+
+### Changed
+- The Player NamePlate now has support for the WeakAuras personal resource display attachments by pretending to be a KUINamePlate. 
+- The Target UnitFrame is now limited to only showing debuffs from the player and bosses. Buff filtering remains unchanged. I'm also working on a better filter. 
+
+### Fixed
+- Worked around a blizzard bug that would cause frames with no name or hashed reference to break the /fstack. 
+- Fixed a bug that would prevent friendly auras to be removed by right-clicking, even when out of combat. 
+- Fixed a startup bug in WotLK clients that would cause the PLAYER\_ENTERING\_WORLD event to be skipped.
+- Fixed the issue where NamePlates wouldn't be initialized on the first character login in WotLK, was a result of the above problem.
 
 ## [1.1.25] 2017-02-21
 ### Changed

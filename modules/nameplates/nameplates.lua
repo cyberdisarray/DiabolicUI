@@ -116,6 +116,8 @@ local ENGINE_MOP 		= Engine:IsBuild("MoP")
 local ENGINE_CATA 		= Engine:IsBuild("Cata")
 local ENGINE_WOTLK 		= Engine:IsBuild("WotLK")
 
+-- Adding support for WeakAuras' personal resource attachments
+local WEAKAURAS = ENGINE_LEGION and Engine:IsAddOnEnabled("WeakAuras")
 
 -- We use the visibility of some items to determine info about a plate's owner, 
 -- but still wish these itemse to be hidden from view. 
@@ -1428,6 +1430,7 @@ NamePlate.CreateRegions = function(self)
 	end
 	]]
 
+
 	self.Health = Health
 	self.Cast = Cast
 	self.Auras = Auras
@@ -1505,13 +1508,31 @@ Module.CreateNamePlate = function(self, baseFrame, name)
 	plate:CreateSizer(baseFrame, worldFrame) -- create the sizer that positions the nameplate
 	plate:HookScripts(baseFrame, worldFrame)
 
+	-- Support for WeakAuras personal resource display attachment! :) 
+	-- (We're pretty much faking it, pretending to be KUINamePlates)
+	if WEAKAURAS then
+		local background = plate:CreateFrame("Frame")
+		background:SetFrameLevel(1)
+
+		local anchor = plate:CreateFrame("Frame")
+		anchor:SetPoint("TOPLEFT", plate.Health, 0, 0)
+		anchor:SetPoint("BOTTOMRIGHT", plate.Cast, 0, 0)
+
+		baseFrame.kui = background
+		baseFrame.kui.bg = anchor
+	end
+
 	plate.allPlates[baseFrame] = plate
 
 	return plate
 end
 
 
-
+--local EnginePlayerNamePlateAnchor = Engine:CreateFrame("Frame", "EnginePlayerNamePlateAnchor", "UICenter") 
+--EnginePlayerNamePlateAnchor:Hide()
+--if (not _G.ElvUIPlayerNamePlateAnchor) then
+--	_G.ElvUIPlayerNamePlateAnchor = EnginePlayerNamePlateAnchor
+--end
 
 -- NamePlate Handling
 ----------------------------------------------------------
@@ -1522,7 +1543,11 @@ Module.OnNamePlateAdded = function(self, unit)
 	if plate then
 		plate.unit = unit
 		plate:OnShow(unit)
-
+		--if (unit == "player") then
+		--	EnginePlayerNamePlateAnchor:SetParent(plate)
+		--	EnginePlayerNamePlateAnchor:SetAllPoints(plate)
+		--	EnginePlayerNamePlateAnchor:Show()
+		--end
 	end
 end
 
@@ -1530,6 +1555,9 @@ end
 Module.OnNamePlateRemoved = function(self, unit)
 	local plate = self:GetNamePlateForUnit(unit)
 	if plate then
+		--if (unit == "player") and (EnginePlayerNamePlateAnchor:IsShown()) then
+		--	EnginePlayerNamePlateAnchor:Hide()
+		--end
 		plate.unit = nil
 		plate:OnHide()
 	end
@@ -1623,7 +1651,6 @@ Module.ForAllPlates = function(self, methodOrFunction, ...)
 		end 
 	end
 end
-
 
 
 -- NamePlate Event Handling

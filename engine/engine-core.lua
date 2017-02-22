@@ -1760,6 +1760,7 @@ end
 -------------------------------------------------------------
 -- Engine startup and initialization
 -------------------------------------------------------------
+local queueWorldEnterEvent
 do
 	local engineIsLoaded, engineVariablesAreLoaded
 	Engine.PreInit = function(self, event, ...)
@@ -1774,8 +1775,16 @@ do
 			self:UnregisterEvent("VARIABLES_LOADED", "PreInit")
 		end
 		if engineVariablesAreLoaded and engineIsLoaded then
-			if not IsLoggedIn() then
+			if (not IsLoggedIn()) then
 				self:RegisterEvent("PLAYER_LOGIN", "Enable")
+			else 
+				-- On the first startup when no WTF settings is 
+				-- saved for the current character in WotLK, 
+				-- the VARIABLES_LOADED event will fire after 
+				-- the PLAYER_ENTERING_WORLD world event, 
+				-- so we have to queue a fake one for the 
+				-- modules to be properly initialized. 
+				queueWorldEnterEvent = true
 			end
 			return self:Init(event, ADDON)
 		end
@@ -1843,35 +1852,10 @@ Engine.Init = function(self, event, ...)
 	-- initial UI scale update
 	self:UpdateScale()
 
-	local ChatCommand = self:GetHandler("ChatCommand")
-	-- add the chat command to toggle auto scaling of the UI
-	--[[
-	ChatCommand:Register("autoscale", function() 
-		local db = self:GetConfig("UI")
-		db.autoscale = not db.autoscale
-		db.hasbeenqueried = true
-		if db.autoscale then
-			print(L["Auto scaling of the UI has been enabled."])
-		else
-			print(L["Auto scaling of the UI has been disabled."])
-			Engine:ReloadUI() -- to get back the UI scale slider
-		end
-		self:UpdateScale()
-	end)
-	]]--
-	
-	-- Add a command to reset setups to their default state.
-	-- TODO: Make it possible for the modules to add 
-	-- 		 these functions in themselves.
-	ChatCommand:Register("resetsetup", function()
-		-- UI scale
-		--[[
-		local db = self:GetConfig("UI")
-		db.hasbeenqueried = false
-		db.autoscale = true
-		self:UpdateScale()
-		]]--
 
+	-- Add a command to reset setups to their default state.
+	local ChatCommand = self:GetHandler("ChatCommand")
+	ChatCommand:Register("resetsetup", function()
 		-- chat window autoposition
 		db = self:GetConfig("ChatWindows")
 		db.hasbeenqueried = false
@@ -1909,7 +1893,13 @@ Engine.Enable = function(self, event, ...)
 	for i = 3, #PRIORITY_INDEX do
 		self:ForAll("Enable", PRIORITY_INDEX[i], event, ...)
 	end
-	
+
+	-- This happens sometimes on the very first login 
+	-- on chars without saved settings in WTF in WotLK.
+	if queueWorldEnterEvent then
+		self:Fire("PLAYER_ENTERING_WORLD")
+	end
+
 	enabledObjects[self] = true
 end
 

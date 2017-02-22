@@ -26,7 +26,8 @@ local UIParent = _G.UIParent
 -- Frame to securely hide items
 local UIHider = CreateFrame("Frame", nil, UIParent)
 UIHider:Hide()
-UIHider:SetAllPoints() 
+UIHider:SetPoint("TOPLEFT", 0, 0)
+UIHider:SetPoint("BOTTOMRIGHT", 0, 0)
 UIHider.children = {}
 RegisterStateDriver(UIHider, "visibility", "hide")
 
@@ -69,9 +70,9 @@ local kill = function(object, keepEvents, silent)
 	end
 	if not UIHider[object] then
 		UIHider[object] = {
-			parent = UIHider:GetParent(),
-			isshown = UIHider:IsShown(),
-			point = { UIHider:GetPoint() }
+			parent = object:GetParent(),
+			isshown = object:IsShown(),
+			point = { object:GetPoint() }
 		}
 	end
 	object:SetParent(UIHider)

@@ -316,8 +316,8 @@ end
 local debuffFilter = function(self, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, spellId, isBossDebuff, isCastByPlayer)
 	if isBossDebuff then
 		return true
-	--elseif (not isCastByPlayer) then
-	--	return false
+	elseif (not isCastByPlayer) then
+		return false
 	elseif duration and (duration > 0) then
 		if duration > TIME_LIMIT then
 			return false
@@ -328,7 +328,6 @@ end
 
 local auraFilter = function(self, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, spellId, isBossDebuff, isCastByPlayer)
 	if duration and (duration > 0) then
-		-- Don't list auras with a long duration here
 		if duration > TIME_LIMIT then
 			return false
 		end

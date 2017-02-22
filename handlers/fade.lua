@@ -356,7 +356,8 @@ Handler.CreateFadeManager = function(self, name, ...)
 	local manager = setmetatable(CreateFrame("Frame", "GUI4_FadeManager"..(numManagers + 1)..(name or ""), UIParent, "SecureHandlerStateTemplate"), FadeManager_MT)
 	manager.settings = setmetatable({}, { __index = defaultFadeManagerSettings }) 
 	manager:SetSize(1,1)
-	manager:SetAllPoints() -- needed to avoid nil bugs in LibWin
+	manager:SetPoint("TOPLEFT", 0, 0)
+	manager:SetPoint("BOTTOMRIGHT", 0, 0)
 	manager.currentAlpha = 1
 	manager.elapsed = 0
 	manager:HookScript("OnAttributeChanged", function(self, attribute, value)

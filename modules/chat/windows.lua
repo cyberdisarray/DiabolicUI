@@ -698,7 +698,7 @@ Module.PositionChatFrames = function(self)
 	ChatFrame:SetClampRectInsets(unpack(config.clamps))
 	ChatFrame:SetMinResize(unpack(config.minimum_size))
 	
-	if not db.hasbeenqueried then
+	if (not db.hasbeenqueried) then
 		local PopUpMessage = self:GetHandler("PopUpMessage")
 		if not PopUpMessage:GetPopUp("ENGINE_AUTO_SETUP_CHAT") then
 			PopUpMessage:RegisterPopUp("ENGINE_AUTO_SETUP_CHAT", {

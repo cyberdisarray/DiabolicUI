@@ -1107,7 +1107,7 @@ Module.StyleMenus = function(self)
 	
 	for i, name in ipairs(menus) do
 		local object = _G[name]
-		if object and not styled[object] then
+		if object and (not styled[object]) then
 			self:StyleMenu(object)
 			styled[object] = true
 		end
@@ -1119,7 +1119,7 @@ Module.StyleTooltips = function(self)
 	
 	for i, name in ipairs(tooltips) do
 		local object = _G[name]
-		if object and not styled[object] then
+		if object and (not styled[object]) then
 			self:StyleTooltip(object)
 			styled[object] = true
 		end
@@ -1169,9 +1169,33 @@ Module.HookGameTooltip = function(self)
 	hooksecurefunc(GameTooltip, "SetUnitDebuff", function(...) self:Tooltip_SetUnitDebuff(...) end)
 end
 
+Module.SkinDebugTools = function(self)
+	self:UpdateStyles()
+
+	local eventFrame = _G.EventTraceFrame
+	local UICenter = Engine:GetFrame()
+
+	_G.FrameStackTooltip:HookScript("OnShow", function(self) self:SetScale(UICenter:GetEffectiveScale()) end)
+
+	-- Strip away border textures 
+	for i = 1, eventFrame:GetNumRegions() do
+		local region = select(i, eventFrame:GetRegions())
+		if region.SetTexture then
+			region:SetTexture("")
+		end
+	end
+
+	-- Add our own backdrop
+	self:CreateBackdrop(eventFrame)
+end
+
 Module.OnEvent = function(self, event, ...)
 	local arg1 = ...
-	if event == "PLAYER_LEVEL_UP" then
+	if (event == "ADDON_LOADED") and (arg1 == "Blizzard_DebugTools") then
+		self:UnregisterEvent("ADDON_LOADED", "OnEvent")
+		self:SkinDebugTools()
+
+	elseif event == "PLAYER_LEVEL_UP" then
 		playerLevel = UnitLevel("player")
 		
 	elseif event == "PLAYER_ENTERING_WORLD" then
@@ -1248,6 +1272,7 @@ Module.OnEnable = function(self)
 	self:RegisterEvent("PLAYER_LEVEL_UP", "OnEvent")
 	self:RegisterEvent("UNIT_INVENTORY_CHANGED", "OnEvent")
 	self:RegisterEvent("MODIFIER_STATE_CHANGED", "OnEvent")
+	self:RegisterEvent("ADDON_LOADED", "OnEvent")
 
 	if ENGINE_CATA then
 		self:RegisterEvent("INSPECT_READY", "OnEvent")

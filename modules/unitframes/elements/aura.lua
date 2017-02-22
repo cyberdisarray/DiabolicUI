@@ -218,7 +218,7 @@ Aura.OnLeave = function(self)
 	GameTooltip:Hide()
 end
 
-Aura.OnClick = CATA and function(self)
+Aura.OnClick = ENGINE_CATA and function(self)
 	if not UnitAffectingCombat("player") then
 		local unit = self.unit
 		if not UnitExists(unit) then
@@ -229,7 +229,7 @@ Aura.OnClick = CATA and function(self)
 		end
 	end
 end
-or WOTLK_330 and function(self)
+or function(self)
 	local unit = self.unit
 	if not UnitExists(unit) then
 		return
@@ -489,6 +489,15 @@ local UpdateTooltip = function(self, event, ...)
 	end
 end
 
+-- Thanks to Blazeflack and Azilroka over at 
+-- the TukUI forums for figuring this one out. 
+-- http://www.tukui.org/forums/topic.php?id=34384
+local FixFrameStack = function(header, index)
+	-- /framestack fails when frames that are created as indices of a table are visible,
+	-- so in order for it to work we need to have hashed names for all of them. Blizzard bug. 
+	header[tostring(index)] = header[index]
+end
+
 local Update = function(self, event, ...)
 	local unit = self.unit
 	local arg1 = ...
@@ -554,6 +563,7 @@ local Update = function(self, event, ...)
 						if Auras.PostCreateButton then
 							Auras:PostCreateButton(Auras[visible])
 						end
+						FixFrameStack(Auras, visible)
 					end
 
 					local button = Auras[visible]
@@ -621,6 +631,7 @@ local Update = function(self, event, ...)
 						if Auras.PostCreateButton then
 							Auras:PostCreateButton(Auras[visible])
 						end
+						FixFrameStack(Auras, visible)
 					end
 
 					local button = Auras[visible]
@@ -716,6 +727,7 @@ local Update = function(self, event, ...)
 						if Buffs.PostCreateButton then
 							Buffs:PostCreateButton(Buffs[visible])
 						end
+						FixFrameStack(Buffs, visible)
 					end
 
 					local button = Buffs[visible]
@@ -809,6 +821,7 @@ local Update = function(self, event, ...)
 						if Debuffs.PostCreateButton then
 							Debuffs:PostCreateButton(Debuffs[visible])
 						end
+						FixFrameStack(Debuffs, visible)
 					end
 
 					local button = Debuffs[visible]

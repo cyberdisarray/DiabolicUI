@@ -69,7 +69,7 @@ Engine:NewStaticConfig("Objectives", {
 					maxLines = 6,
 					lineSpacing = 7,
 					leftMargin = 0, 
-					rightMargin = 40, -- space for quest items
+					rightMargin = 56, -- space for quest items
 					normalFont = DiabolicFont_SansRegular12Title
 				},
 				item = {
@@ -115,7 +115,7 @@ Engine:NewStaticConfig("Objectives", {
 					maxLines = 6,
 					lineSpacing = 4,
 					leftMargin = 30, -- space for dots
-					rightMargin = 40, -- space for quest items
+					rightMargin = 56, -- space for quest items
 					topMargin = 6, -- margin before every objective
 					bottomMargin = 12, -- margin after ALL objectives are listed
 					dotAdjust = -2,
@@ -129,7 +129,7 @@ Engine:NewStaticConfig("Objectives", {
 					maxLines = 6,
 					lineSpacing = 4,
 					leftMargin = 30, -- space for dots
-					rightMargin = 40, -- space for quest items,
+					rightMargin = 56, -- space for quest items,
 					topMargin = 10,
 					bottomMargin = 0, -- something else is being added, can't seem to figure out what :S 
 					dotAdjust = -2,
