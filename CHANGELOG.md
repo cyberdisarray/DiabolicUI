@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][1.1.27] 2017-02-21
+## [Unreleased][1.1.28] 2017-02-23
 ### Added
 - Added custom scaling options.
 - Added PvP Capture Bars.
@@ -14,7 +14,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Side actionbars have changed layout and position, and won't interfere with the quest tracker anymore.
 
-## [1.1.26] 2017-02-21
+## [1.1.27] 2017-02-23
+### Added
+- Hovering over the time display above the Minimap will now show a tooltip with both local and realm time.
+- Left-Clicking the time display above the Minimap will now show the in-game event calendar!
+- Added the various mirror timer colors (breath, fatigue, etc) to the UIs internal color table.
+
+### Changed
+- The custom StatusBar handler now calculates sizes based on points before stored size, leading to less weird bugs and strange results.
+- Changed how the UnitFrame handler's Aura element stores and displays things, to reduce incompatibilities with other buff styling addons.
+- Did a lot of general code optimizations.
+
+### Removed
+- Removed the old combo point system altogether, even for Druids. The upcoming new resource point system will replace it.
+
+
+## [1.1.26] 2017-02-22
 ### Added
 - Slightly styled the /fstack and /eventtrace frames, mainly because I use them a lot and wanted a look that fit the UI.
 

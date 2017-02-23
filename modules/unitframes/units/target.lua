@@ -29,16 +29,6 @@ local TIME_LIMIT = 300
 local _, playerClass = UnitClass("player")
 local PlayerIsRogue = playerClass == "ROGUE" -- to check for rogue anticipation
 
-local MAX_COMBO_POINTS = MAX_COMBO_POINTS or 5
-local MAX_ANTICIPATION_POINTS = MAX_COMBO_POINTS or 5
-
--- Rogues get a new anticipation system in Legion, 
--- where anticipation is counted as merely 3 more combopoints.
-if Engine:IsBuild("Legion") and PlayerIsRogue then
-	MAX_COMBO_POINTS = 6
-	MAX_ANTICIPATION_POINTS = 3
-end
-
 
 
 -- Utility Functions
@@ -153,31 +143,6 @@ local setArtworkLayer = function(self, isboss, haspower, ishighlight)
 		end
 	end
 	
-	-- Update combo- and anticipation point position
-	local ComboPoints = self.ComboPoints
-	if isboss then
-		if haspower then
-			ComboPoints:SetScale((2/3))
-			ComboPoints:SetPoint("CENTER", (ComboPoints:GetWidth()/2 + 14)/(2/3), -26/(2/3)) -- perfect with power
-		else
-			ComboPoints:SetScale(.75)
-			ComboPoints:SetPoint("CENTER", (ComboPoints:GetWidth()/2 + 20)/.75, -2/.75) -- perfect without
-		end
-	else 
-		ComboPoints:SetScale(.75)
-		--ComboPoints:SetScale(1)
-		if haspower then
-			ComboPoints:SetPoint("CENTER", 0, -24/.75) -- perfect with power
-		else
-			ComboPoints:SetPoint("CENTER", 0, -6/.75) -- perfect without
-		end
-		if ComboPoints.Anticipation then
-			ComboPoints.Anticipation:ClearAllPoints()
-			ComboPoints.Anticipation:SetPoint("TOP", ComboPoints, "BOTTOM", 0, 0) 
-		end
-	end
-	
-	
 end
 
 local updateArtworkLayers = function(self)
@@ -228,25 +193,25 @@ end
 
 local postCreateAuraButton = function(self, button)
 	local config = self.buttonConfig
-	local width, height = config.size[1], config.size[2]
-	local r, g, b = config.color[1], config.color[2], config.color[3]
-	local timerHeight = 8
+	local width, height = unpack(config.size)
+	local r, g, b = unpack(config.color)
 
-	local icon = button.Icon
-	local overlay = button.Overlay
-	local scaffold = button.Scaffold
-	local timer = button.Timer
-	local timerBar = button.Timer.Bar
-	local timerBarBackground = button.Timer.Background
-	local timerScaffold = button.Timer.Scaffold
+	local icon = button:GetElement("Icon")
+	local overlay = button:GetElement("Overlay")
+	local scaffold = button:GetElement("Scaffold")
+	local timer = button:GetElement("Timer")
+
+	local timerBar = timer.Bar
+	local timerBarBackground = timer.Background
+	local timerScaffold = timer.Scaffold
+
+	overlay:SetBackdrop(config.glow.backdrop)
 
 	local glow = button:CreateFrame()
 	glow:SetFrameLevel(button:GetFrameLevel())
 	glow:SetPoint("TOPLEFT", scaffold, "TOPLEFT", -4, 4)
 	glow:SetPoint("BOTTOMRIGHT", scaffold, "BOTTOMRIGHT", 3, -3)
 	glow:SetBackdrop(config.glow.backdrop)
-
-	icon:SetTexCoord(0, 1, 0, 1) 
 
 	local iconShade = scaffold:CreateTexture()
 	iconShade:SetDrawLayer("OVERLAY")
@@ -263,13 +228,8 @@ local postCreateAuraButton = function(self, button)
 	iconOverlay:Hide()
 	iconOverlay:SetDrawLayer("OVERLAY")
 	iconOverlay:SetAllPoints(icon)
-	iconOverlay:SetColorTexture(0, 0, 0, 0)
-
-	overlay:SetBackdrop(config.glow.backdrop)
-
-	timer:SetSize(width, timerHeight)
-	timer:Place("BOTTOM", 0, 0)
-	timerBar:SetSize(width - 2*2, timerHeight - 2*2)
+	iconOverlay:SetColorTexture(0, 0, 0, 1)
+	icon.Overlay = iconOverlay
 
 	local timerOverlay = timer:CreateFrame()
 	timerOverlay:SetFrameLevel(timer:GetFrameLevel() + 3)
@@ -278,6 +238,9 @@ local postCreateAuraButton = function(self, button)
 	timerOverlay:SetBackdrop(config.glow.backdrop)
 
 	button.SetBorderColor = function(self, r, g, b)
+		timerBarBackground:SetVertexColor(r * 1/3, g * 1/3, b * 1/3)
+		timerBar:SetStatusBarColor(r * 2/3, g * 2/3, b * 2/3)
+
 		overlay:SetBackdropBorderColor(r, g, b, .5)
 		glow:SetBackdropBorderColor(r/3, g/3, b/3, .75)
 		timerOverlay:SetBackdropBorderColor(r, g, b, .5)
@@ -287,23 +250,17 @@ local postCreateAuraButton = function(self, button)
 
 		timerScaffold:SetBackdropColor(r * 1/3, g * 1/3, b * 1/3)
 		timerScaffold:SetBackdropBorderColor(r, g, b)
-
-		--local r, g, b = .7, .1, .1
-		timerBarBackground:SetVertexColor(r * 1/3, g * 1/3, b * 1/3)
-		timerBar:SetStatusBarColor(r * 2/3, g * 2/3, b * 2/3)
 	end
 
-	icon.Overlay = iconOverlay
-	button.Glow = glow
-	button.fullHeight = height
-	button.timerHeight = height - (timerHeight + 1)
-
+	button:SetElement("Glow", glow)
 	button:SetSize(width, height)
 	button:SetBorderColor(r * 4/5, g * 4/5, b * 4/5)
 end
 
 local buffFilter = function(self, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, spellId, isBossDebuff, isCastByPlayer)
 	if isBossDebuff then
+		return true
+	elseif isStealable then
 		return true
 	elseif duration and (duration > 0) then
 		if duration > TIME_LIMIT then
@@ -326,73 +283,80 @@ local debuffFilter = function(self, name, rank, icon, count, debuffType, duratio
 	end
 end
 
-local auraFilter = function(self, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, spellId, isBossDebuff, isCastByPlayer)
-	if duration and (duration > 0) then
-		if duration > TIME_LIMIT then
-			return false
-		end
-		return true
-	end
-end
-
 local postUpdateAuraButton = function(self, button, ...)
 	local updateType = ...
-	local timer = button.Timer
-	if timer:IsShown() then
-		button.Glow:SetPoint("BOTTOMRIGHT", button.Scaffold, "BOTTOMRIGHT", 3, -(3 + 1 + 8))
-	else
-		button.Glow:SetPoint("BOTTOMRIGHT", button.Scaffold, "BOTTOMRIGHT", 3, -3)
-	end
-	button.Scaffold:SetPoint("BOTTOMRIGHT", 0, (button.fullHeight - button.timerHeight))
-
 	local config = self.buttonConfig
-	if button.isBuff then
-		if button.isStealable then
-			local color = C.General.Title
-			button:SetBorderColor(color[1], color[2], color[3]) 
-			button.Icon:SetDesaturated(false)
-			button.Icon:SetVertexColor(1, 1, 1)
-			button.Icon.Overlay:Hide()
+
+	local icon = button:GetElement("Icon")
+	local glow = button:GetElement("Glow")
+	local timer = button:GetElement("Timer")
+	local scaffold = button:GetElement("Scaffold")
+
+	if timer:IsShown() then
+		glow:SetPoint("BOTTOMRIGHT", timer, "BOTTOMRIGHT", 3, -3)
+	else
+		glow:SetPoint("BOTTOMRIGHT", scaffold, "BOTTOMRIGHT", 3, -3)
+	end
+	
+	if self.hideTimerBar then
+		local color = config.color
+		button:SetBorderColor(color[1], color[2], color[3]) 
+		icon:SetDesaturated(false)
+		icon:SetVertexColor(.85, .85, .85)
+	else
+		if button.isBuff then
+			if button.isStealable then
+				local color = C.General.Title
+				button:SetBorderColor(color[1], color[2], color[3]) 
+				icon:SetDesaturated(false)
+				icon:SetVertexColor(1, 1, 1)
+				icon.Overlay:Hide()
+
+			elseif button.isCastByPlayer then
+				local color = C.General.XP
+				button:SetBorderColor(color[1], color[2], color[3]) 
+				icon:SetDesaturated(false)
+				icon:SetVertexColor(1, 1, 1)
+				icon.Overlay:Hide()
+
+			else
+
+				local color = config.color
+				button:SetBorderColor(color[1], color[2], color[3]) 
+
+				if icon:SetDesaturated(true) then
+					icon:SetVertexColor(1, 1, 1)
+					icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
+					icon.Overlay:Show()
+				else
+					icon:SetDesaturated(false)
+					icon:SetVertexColor(.7, .7, .7)
+					icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
+					icon.Overlay:Show()
+				end		
+			end
+
 		elseif button.isCastByPlayer then
-			local color = C.General.XP
-			button:SetBorderColor(color[1], color[2], color[3]) 
-			button.Icon:SetDesaturated(false)
-			button.Icon:SetVertexColor(1, 1, 1)
-			button.Icon.Overlay:Hide()
+			button:SetBorderColor(.7, .1, .1)
+			icon:SetDesaturated(false)
+			icon:SetVertexColor(1, 1, 1)
+			icon.Overlay:Hide()
+
 		else
 			local color = config.color
-			button:SetBorderColor(color[1], color[2], color[3]) 
+			button:SetBorderColor(color[1], color[2], color[3])
 
-			if button.Icon:SetDesaturated(true) then
-				button.Icon:SetVertexColor(1, 1, 1)
-				button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
-				button.Icon.Overlay:Show()
+			if icon:SetDesaturated(true) then
+				icon:SetVertexColor(1, 1, 1)
+				icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
+				icon.Overlay:Show()
 			else
-				button.Icon:SetDesaturated(false)
-				button.Icon:SetVertexColor(.7, .7, .7)
-				button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
-				button.Icon.Overlay:Show()
+				icon:SetDesaturated(false)
+				icon:SetVertexColor(.7, .7, .7)
+				icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
+				icon.Overlay:Show()
 			end		
 		end
-	elseif button.isCastByPlayer then
-		button:SetBorderColor(.7, .1, .1)
-		button.Icon:SetDesaturated(false)
-		button.Icon:SetVertexColor(1, 1, 1)
-		button.Icon.Overlay:Hide()
-	else
-		local color = config.color
-		button:SetBorderColor(color[1], color[2], color[3])
-
-		if button.Icon:SetDesaturated(true) then
-			button.Icon:SetVertexColor(1, 1, 1)
-			button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
-			button.Icon.Overlay:Show()
-		else
-			button.Icon:SetDesaturated(false)
-			button.Icon:SetVertexColor(.7, .7, .7)
-			button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
-			button.Icon.Overlay:Show()
-		end		
 	end
 end
 
@@ -512,104 +476,6 @@ local Style = function(self, unit)
 	power.frequent = 1/120
 	
 
-	-- ComboPoints
-	-- *TODO: Add the settings to the config file. Can't be arsed now. 
-	-------------------------------------------------------------------
-	local comboPoints = border:CreateFrame()
-	local cw, ch, cp = 28, 10, 2
-	local combo_r = .6
-	local combo_g = .15 
-	local combo_b = .025
-	local combo_r_last = .9686274509803922 
-	local combo_g_last = .674509803921568 
-	local combo_b_last = .1450980392156863
-	
-	comboPoints.point_width = cw
-	comboPoints.point_height = ch
-	comboPoints.point_padding = cp
-	
-	comboPoints:SetSize(cw*MAX_COMBO_POINTS + cp*(MAX_COMBO_POINTS-1), ch)
-	comboPoints:SetPoint("CENTER", 0, -22) -- perfect with power
-	--comboPoints:SetPoint("CENTER", 0, -2) -- perfect without
-	
-	for i = 1, MAX_COMBO_POINTS do
-		local comboPoint = comboPoints:CreateFrame()
-		comboPoint:Hide()
-		comboPoint:SetSize(cw, ch)
-		comboPoint:SetPoint("BOTTOMLEFT", (cw + cp)*(i-1), 0)
-		comboPoint:SetBackdrop({
-			bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
-			edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-			tile = false,
-			edgeSize = 8,
-			insets = { 
-				left = 2.5,
-				right = 1.5,
-				top = 2.5,
-				bottom = 1.5
-			}
-		})
-		local r, g, b
-		if i == 1 then
-			r, g, b = combo_r, combo_g, combo_b
-		elseif i == MAX_COMBO_POINTS then
-			r, g, b = combo_r_last, combo_g_last, combo_b_last
-		else
-			-- Grrrrraaaaaadient!
-			r = combo_r + ((combo_r_last-combo_r)/(MAX_COMBO_POINTS - 2))*(i - 1)
-			g = combo_g + ((combo_g_last-combo_g)/(MAX_COMBO_POINTS - 2))*(i - 1)
-			b = combo_b + ((combo_b_last-combo_b)/(MAX_COMBO_POINTS - 2))*(i - 1)
-		end
-		comboPoint:SetBackdropColor(r, g, b, 1)
-		comboPoint:SetBackdropBorderColor(0, 0, 0, 1)
-		
-		comboPoints[i] = comboPoint
-	end
-	self.ComboPoints = comboPoints
-	
-	
-	-- Rogue Anticipation
-	if PlayerIsRogue and Engine:IsBuild("MoP") then
-		local Anticipation = comboPoints:CreateFrame()
-		local cw, ch, cp = 24, 8, 2
-		local anticipation_r = 0.4
-		local anticipation_g = 0.05
-		local anticipation_b = 0.15
-		
-		Anticipation:SetSize(cw*MAX_ANTICIPATION_POINTS + cp*(MAX_ANTICIPATION_POINTS-1), ch)
-		Anticipation:SetPoint("TOP", comboPoints, "BOTTOM", 0, 0) 
-		
-		for i = 1, MAX_ANTICIPATION_POINTS do
-			local AnticipationPoint = Anticipation:CreateFrame()
-			AnticipationPoint:Hide()
-			AnticipationPoint:SetSize(cw, ch)
-			AnticipationPoint:SetPoint("BOTTOMLEFT", (cw + cp)*(i-1), 0)
-			AnticipationPoint:SetBackdrop({
-				bgFile = [[Interface\ChatFrame\ChatFrameBackground]],
-				edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-				tile = false,
-				edgeSize = 8,
-				insets = { 
-					left = 2.5,
-					right = 1.5,
-					top = 2.5,
-					bottom = 1.5
-				}
-			})
-			AnticipationPoint:SetBackdropColor(anticipation_r, anticipation_g, anticipation_b, 1)
-			AnticipationPoint:SetBackdropBorderColor(0, 0, 0, 1)
-			
-			Anticipation[i] = AnticipationPoint
-		end
-		
-		comboPoints.Anticipation = Anticipation
-	end
-	
-	if Engine:IsBuild("Legion") then
-		comboPoints.PostUpdate = updateComboPoints
-	end
-	
-
 
 	-- CastBar
 	-------------------------------------------------------------------
@@ -618,10 +484,6 @@ local Style = function(self, unit)
 	castBar:SetAllPoints()
 	castBar:SetStatusBarTexture(1, 1, 1, .15)
 	castBar:SetSize(health:GetSize())
-	--castBar:SetSize(unpack(config.castbar.size))
-	--castBar:SetSparkTexture(config.castbar.spark.texture)
-	--castBar:SetSparkSize(unpack(config.castbar.spark.size))
-	--castBar:SetSparkFlash(unpack(config.castbar.spark.flash))
 	castBar:DisableSmoothing(true)
 
 
@@ -635,15 +497,14 @@ local Style = function(self, unit)
 	auras.config = config.auras
 	auras.buttonConfig = config.auras.button
 	auras.auraSize = config.auras.button.size
-	auras.spacingH = config.auras.spacing
-	auras.spacingV = config.auras.spacing
+	auras.spacingH = config.auras.spacingH
+	auras.spacingV = config.auras.spacingV
 	auras.growthX = "RIGHT"
 	auras.growthY = "DOWN"
 	auras.filter = nil
 
 	auras.BuffFilter = buffFilter
 	auras.DebuffFilter = debuffFilter
-	auras.AuraFilter = auraFilter
 	auras.PostCreateButton = postCreateAuraButton
 	auras.PostUpdateButton = postUpdateAuraButton
 
@@ -788,7 +649,6 @@ end
 UnitFrameWidget.OnEnable = function(self)
 	self.UnitFrame = UnitFrame:New("target", Engine:GetFrame(), Style)
 
-	-- Add some sound for target changes
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnEvent")
 end
 

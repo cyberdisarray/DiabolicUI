@@ -6,11 +6,11 @@ local Module = Engine:NewModule("Minimap", "HIGH")
 local BlizzardUI = Engine:GetHandler("BlizzardUI")
 local C = Engine:GetStaticConfig("Data: Colors")
 local F = Engine:GetStaticConfig("Data: Functions")
---local Flash = Engine:GetHandler("Flash")
---local UICenter = Engine:GetFrame()
+local L = Engine:GetLocale()
 
 
 -- Lua API
+local _G = _G
 local date = date
 local math_sqrt = math.sqrt
 local select = select
@@ -20,52 +20,55 @@ local table_wipe = table.wipe
 local unpack = unpack
 
 -- WoW API
-local GetCursorPosition = GetCursorPosition
-local GetDifficultyInfo = GetDifficultyInfo
-local GetGameTime = GetGameTime
-local GetInstanceInfo = GetInstanceInfo
-local GetMinimapZoneText = GetMinimapZoneText
-local GetPlayerMapPosition = GetPlayerMapPosition
-local GetSubZoneText = GetSubZoneText
-local GetZonePVPInfo = GetZonePVPInfo
-local GetZoneText = GetZoneText
-local IsInInstance = IsInInstance
-local RegisterStateDriver = RegisterStateDriver
-local SetMapToCurrentZone = SetMapToCurrentZone
-local ToggleDropDownMenu = ToggleDropDownMenu
+local GetCursorPosition = _G.GetCursorPosition
+local GetDifficultyInfo = _G.GetDifficultyInfo
+local GetGameTime = _G.GetGameTime
+local GetInstanceInfo = _G.GetInstanceInfo
+local GetMinimapZoneText = _G.GetMinimapZoneText
+local GetPlayerMapPosition = _G.GetPlayerMapPosition
+local GetSubZoneText = _G.GetSubZoneText
+local GetZonePVPInfo = _G.GetZonePVPInfo
+local GetZoneText = _G.GetZoneText
+local IsInInstance = _G.IsInInstance
+local RegisterStateDriver = _G.RegisterStateDriver
+local SetMapToCurrentZone = _G.SetMapToCurrentZone
+local ToggleDropDownMenu = _G.ToggleDropDownMenu
 
 
 -- WoW frames and objects referenced frequently
 ------------------------------------------------------------------
-local GameTooltip = GameTooltip
-local Minimap = Minimap
-local MinimapBackdrop = MinimapBackdrop
-local MinimapCluster = MinimapCluster
-local MinimapZoomIn = MinimapZoomIn
-local MinimapZoomOut = MinimapZoomOut
+local GameTooltip = _G.GameTooltip
+local Minimap = _G.Minimap
+local MinimapBackdrop = _G.MinimapBackdrop
+local MinimapCluster = _G.MinimapCluster
+local MinimapZoomIn = _G.MinimapZoomIn
+local MinimapZoomOut = _G.MinimapZoomOut
 
 
 -- WoW strings
 ------------------------------------------------------------------
 -- Garrison
-local GARRISON_ALERT_CONTEXT_BUILDING = GARRISON_ALERT_CONTEXT_BUILDING
-local GARRISON_ALERT_CONTEXT_INVASION = GARRISON_ALERT_CONTEXT_INVASION
-local GARRISON_ALERT_CONTEXT_MISSION = GARRISON_ALERT_CONTEXT_MISSION
-local GARRISON_LANDING_PAGE_TITLE = GARRISON_LANDING_PAGE_TITLE
-local MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP
+local GARRISON_ALERT_CONTEXT_BUILDING = _G.GARRISON_ALERT_CONTEXT_BUILDING
+local GARRISON_ALERT_CONTEXT_INVASION = _G.GARRISON_ALERT_CONTEXT_INVASION
+local GARRISON_ALERT_CONTEXT_MISSION = _G.GARRISON_ALERT_CONTEXT_MISSION
+local GARRISON_LANDING_PAGE_TITLE = _G.GARRISON_LANDING_PAGE_TITLE
+local MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP = _G.MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP
 
 -- Zonetext
-local DUNGEON_DIFFICULTY1 = DUNGEON_DIFFICULTY1
-local DUNGEON_DIFFICULTY2 = DUNGEON_DIFFICULTY2
-local SANCTUARY_TERRITORY = SANCTUARY_TERRITORY
-local FREE_FOR_ALL_TERRITORY = FREE_FOR_ALL_TERRITORY
-local FACTION_CONTROLLED_TERRITORY = FACTION_CONTROLLED_TERRITORY
-local CONTESTED_TERRITORY = CONTESTED_TERRITORY
-local COMBAT_ZONE = COMBAT_ZONE
+local DUNGEON_DIFFICULTY1 = _G.DUNGEON_DIFFICULTY1
+local DUNGEON_DIFFICULTY2 = _G.DUNGEON_DIFFICULTY2
+local SANCTUARY_TERRITORY = _G.SANCTUARY_TERRITORY
+local FREE_FOR_ALL_TERRITORY = _G.FREE_FOR_ALL_TERRITORY
+local FACTION_CONTROLLED_TERRITORY = _G.FACTION_CONTROLLED_TERRITORY
+local CONTESTED_TERRITORY = _G.CONTESTED_TERRITORY
+local COMBAT_ZONE = _G.COMBAT_ZONE
 
 -- Time
-local TIMEMANAGER_AM = TIMEMANAGER_AM
-local TIMEMANAGER_PM = TIMEMANAGER_PM
+local TIMEMANAGER_AM = _G.TIMEMANAGER_AM
+local TIMEMANAGER_PM = _G.TIMEMANAGER_PM
+local TIMEMANAGER_TITLE = _G.TIMEMANAGER_TITLE
+local TIMEMANAGER_TOOLTIP_LOCALTIME = _G.TIMEMANAGER_TOOLTIP_LOCALTIME
+local TIMEMANAGER_TOOLTIP_REALMTIME = _G.TIMEMANAGER_TOOLTIP_REALMTIME
 
 -- Difficulty and group sizes
 local SOLO = SOLO
@@ -661,6 +664,57 @@ Module.OnInit = function(self)
 	time:Place(unpack(config.text.time.point))
 	time:SetJustifyV("BOTTOM")
 
+	local timeClick = info:CreateFrame("Button")
+	timeClick:SetAllPoints(time)
+	timeClick:RegisterForClicks("RightButtonUp", "LeftButtonUp")
+	timeClick.UpdateTooltip = function(self)
+		local localTime, realmTime
+
+		local dateTable = date("*t")
+		local h, m = dateTable.hour,  dateTable.min 
+		local gH, gM = GetGameTime()
+
+		if db.use24hrClock then
+			localTime = string_format("%02d:%02d", h, m)
+			realmTime = string_format("%02d:%02d", gH, gM)
+		else
+			if (h > 12) then 
+				localTime = string_format("%d:%02d%s", h - 12, m, TIMEMANAGER_PM)
+			elseif (h < 1) then
+				localTime = string_format("%d:%02d%s", h + 12, m, TIMEMANAGER_AM)
+			else
+				localTime = string_format("%d:%02d%s", h, m, TIMEMANAGER_AM)
+			end
+			if (gH > 12) then 
+				realmTime = string_format("%d:%02d%s", h - 12, m, TIMEMANAGER_PM)
+			elseif (gH < 1) then
+				realmTime = string_format("%d:%02d%s", h + 12, m, TIMEMANAGER_AM)
+			else
+				realmTime = string_format("%d:%02d%s", h, m, TIMEMANAGER_AM)
+			end
+		end
+
+		local r, g, b = unpack(C.General.OffWhite)
+
+		GameTooltip:SetOwner(mapContent, "ANCHOR_PRESERVE")
+		GameTooltip:ClearAllPoints()
+		GameTooltip:SetPoint("TOPRIGHT", mapContent, "TOPLEFT", -10, -10)
+		GameTooltip:AddLine(TIMEMANAGER_TITLE)
+		GameTooltip:AddDoubleLine(TIMEMANAGER_TOOLTIP_LOCALTIME, localTime, r, g, b)
+		GameTooltip:AddDoubleLine(TIMEMANAGER_TOOLTIP_REALMTIME, realmTime, r, g, b)
+		GameTooltip:AddLine(L["<Left-click> to toggle calendar."], unpack(C.General.OffGreen))
+		GameTooltip:Show()
+	end
+
+	timeClick:SetScript("OnEnter", timeClick.UpdateTooltip)
+	timeClick:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+	timeClick:SetScript("OnClick", function(self, mouseButton)
+		if (mouseButton == "LeftButton") then
+			ToggleCalendar()
+		end
+	end)
+
+
 	-- group and difficulty status
 	local zoneDifficulty = info:CreateFontString()
 	zoneDifficulty:SetFontObject(config.text.time.normalFont)
@@ -850,61 +904,12 @@ Module.OnInit = function(self)
 	-- Will move these up when the new garrison button graphics are done
 	do return end
 
-
 	if WOD then 
 		self.frame.widgets.garrison = CreateFrame("Frame", nil, self.frame.scaffold.border) 
 		self.frame.widgets.garrison:EnableMouse(true) 
 		self.frame.widgets.garrison:SetScript("OnEnter", Garrison_OnEnter) 
 		self.frame.widgets.garrison:SetScript("OnLeave", Garrison_OnLeave) 
 		self.frame.widgets.garrison:SetScript("OnMouseDown", Garrison_OnClick)
-		self.frame.widgets.garrison:SetPoint(unpack(config.garrison.point))
-		self.frame.widgets.garrison:SetSize(unpack(config.garrison.size)) 
-		
-		self.frame.widgets.garrison.highlight = CreateFrame("Frame", nil, self.frame.widgets.garrison)
-		self.frame.widgets.garrison.highlight:SetAlpha(0) 
-		self.frame.widgets.garrison.highlight:SetFrameLevel(self.frame.widgets.garrison:GetFrameLevel()) 
-		self.frame.widgets.garrison.highlight:SetAllPoints()
-
-		Flash:ApplyFadersToFrame(self.frame.widgets.garrison.highlight)
-		self.frame.widgets.garrison.highlight:SetFadeOut(config.garrison.fadeOutDuration)
-		self.frame.widgets.garrison.highlight.fadeInDuration = config.garrison.fadeInDuration
-		
-		self.frame.widgets.garrison.glow = CreateFrame("Frame", nil, self.frame.widgets.garrison) 
-		self.frame.widgets.garrison.glow:SetAlpha(0) 
-		self.frame.widgets.garrison.glow:SetFrameLevel(self.frame.widgets.garrison:GetFrameLevel()) 
-		self.frame.widgets.garrison.glow:SetAllPoints() 
-
-		Flash:ApplyFadersToFrame(self.frame.widgets.garrison.glow)
-		self.frame.widgets.garrison.glow:SetFadeOut(0.75)
-		
-		self.frame.widgets.garrison.icon = self.frame.widgets.garrison:CreateTexture()
-		self.frame.widgets.garrison.icon:SetDrawLayer("OVERLAY", 0)
-		self.frame.widgets.garrison.icon:SetTexture(config.garrison.texture.path)
-		self.frame.widgets.garrison.icon:SetTexCoord(unpack(config.garrison.texture.texcoords.normal))
-		self.frame.widgets.garrison.icon:SetSize(unpack(config.garrison.texture.size))
-		self.frame.widgets.garrison.icon:SetPoint(unpack(config.garrison.texture.point))
-		
-		self.frame.widgets.garrison.icon.highlight = self.frame.widgets.garrison.highlight:CreateTexture()
-		self.frame.widgets.garrison.icon.highlight:SetAlpha(1)
-		self.frame.widgets.garrison.icon.highlight:SetDrawLayer("OVERLAY", 1)
-		self.frame.widgets.garrison.icon.highlight:SetTexture(config.garrison.texture.path)
-		self.frame.widgets.garrison.icon.highlight:SetTexCoord(unpack(config.garrison.texture.texcoords.highlight))
-
-		self.frame.widgets.garrison.icon.glow = self.frame.widgets.garrison.glow:CreateTexture() 
-		self.frame.widgets.garrison.icon.glow:Hide() 
-		self.frame.widgets.garrison.icon.glow:SetAlpha(.75)
-		self.frame.widgets.garrison.icon.glow:SetDrawLayer("OVERLAY", -1)
-		self.frame.widgets.garrison.icon.glow:SetAllPoints(self.frame.widgets.garrison.icon)
-		self.frame.widgets.garrison.icon.glow:SetTexture(config.garrison.texture.path)
-		self.frame.widgets.garrison.icon.glow:SetTexCoord(unpack(config.garrison.texture.texcoords.glow))
-		
-		self.frame.widgets.garrison.icon.redglow = self.frame.widgets.garrison.glow:CreateTexture()
-		self.frame.widgets.garrison.icon.redglow:Hide()
-		self.frame.widgets.garrison.icon.redglow:SetAlpha(.75)
-		self.frame.widgets.garrison.icon.redglow:SetDrawLayer("OVERLAY", -1)
-		self.frame.widgets.garrison.icon.redglow:SetAllPoints(self.frame.widgets.garrison.icon)
-		self.frame.widgets.garrison.icon.redglow:SetTexture(config.garrison.texture.path)
-		self.frame.widgets.garrison.icon.redglow:SetTexCoord(unpack(config.garrison.texture.texcoords.redglow))
 
 		self.garrison = self.frame.widgets.garrison
 	end

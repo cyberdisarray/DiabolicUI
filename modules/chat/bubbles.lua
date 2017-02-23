@@ -1,14 +1,20 @@
 local Addon, Engine = ...
 local Module = Engine:NewModule("ChatBubbles")
+local UICenter = Engine:GetFrame()
 
 -- Lua API
-local abs, floor = math.abs, math.floor
-local ipairs, pairs, select = ipairs, pairs, select
+local _G = _G
+
+local ipairs = ipairs
+local math_abs = math.abs
+local math_floor = math.floor
+local pairs = pairs
+local select = select
 local tostring = tostring
 
 -- WoW API
-local CreateFrame = CreateFrame
-local WorldFrame = WorldFrame
+local CreateFrame = _G.CreateFrame
+local WorldFrame = _G.WorldFrame
 
 local bubbles = {}
 local fontsize = 12
@@ -16,16 +22,16 @@ local numChildren, numBubbles = -1, 0
 local BLANK_TEXTURE = [[Interface\ChatFrame\ChatFrameBackground]]
 local BUBBLE_TEXTURE = [[Interface\Tooltips\ChatBubble-Background]]
 
-local function getPadding()
+local getPadding = function()
 	return fontsize / 1.2
 end
 
 -- let the bubble size scale from 400 to 660ish (font size 22)
-local function getMaxWidth()
-	return 400 + floor((fontsize - 12)/22 * 260)
+local getMaxWidth = function()
+	return 400 + math_floor((fontsize - 12)/22 * 260)
 end
 
-local function getBackdrop(scale) 
+local getBackdrop = function(scale) 
 	return {
 		bgFile = BLANK_TEXTURE,  
 		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
@@ -44,7 +50,7 @@ end
 -- 	Namebubble Detection & Update Cycle
 ------------------------------------------------------------------------------
 -- this needs to run even when the UI is hidden
-local Updater = CreateFrame("Frame", nil, WorldFrame)
+local Updater = Engine:CreateFrame("Frame", nil, WorldFrame)
 Updater:SetFrameStrata("TOOLTIP")
 
 -- check whether the given frame is a bubble or not
@@ -73,14 +79,14 @@ Updater.OnUpdate = function(self, elapsed)
 	
 	-- bubble, bubble.text = original bubble and message
 	-- bubbles[bubble], bubbles[bubble].text = our custom bubble and message
-	local scale = WorldFrame:GetHeight()/UIParent:GetHeight()
+	local scale = WorldFrame:GetHeight()/UICenter:GetHeight()
 	for bubble in pairs(bubbles) do
 		if bubble:IsShown() then
 			-- continuing the fight against overlaps blending into each other! 
 			bubbles[bubble]:SetFrameLevel(bubble:GetFrameLevel()) -- this works?
 			
-			local blizzTextWidth = floor(bubble.text:GetWidth())
-			local blizzTextHeight = floor(bubble.text:GetHeight())
+			local blizzTextWidth = math_floor(bubble.text:GetWidth())
+			local blizzTextHeight = math_floor(bubble.text:GetHeight())
 			local point, anchor, rpoint, blizzX, blizzY = bubble.text:GetPoint()
 			local r, g, b = bubble.text:GetTextColor()
 			bubbles[bubble].color[1] = r
@@ -108,14 +114,14 @@ Updater.OnUpdate = function(self, elapsed)
 				local space = getPadding()
 				local ourTextWidth = bubbles[bubble].text:GetWidth()
 				local ourTextHeight = bubbles[bubble].text:GetHeight()
-				local ourX = floor(offsetX + (blizzX - blizzTextWidth/2)/scale - (ourTextWidth-blizzTextWidth)/2) -- chatbubbles are rendered at BOTTOM, WorldFrame, BOTTOMLEFT, x, y
-				local ourY = floor(offsetY + blizzY/scale - (ourTextHeight-blizzTextHeight)/2) -- get correct bottom coordinate
-				local ourWidth = floor(ourTextWidth + space*2)
-				local ourHeight = floor(ourTextHeight + space*2)
+				local ourX = math_floor(offsetX + (blizzX - blizzTextWidth/2)/scale - (ourTextWidth-blizzTextWidth)/2) -- chatbubbles are rendered at BOTTOM, WorldFrame, BOTTOMLEFT, x, y
+				local ourY = math_floor(offsetY + blizzY/scale - (ourTextHeight-blizzTextHeight)/2) -- get correct bottom coordinate
+				local ourWidth = math_floor(ourTextWidth + space*2)
+				local ourHeight = math_floor(ourTextHeight + space*2)
 				bubbles[bubble]:Hide() -- hide while sizing and moving, to gain fps
 				bubbles[bubble]:SetSize(ourWidth, ourHeight)
 				local oldX, oldY = select(4, bubbles[bubble]:GetPoint())
-				if not(oldX and oldY) or ((abs(oldX - ourX) > .5) or (abs(oldY - ourY) > .5)) then -- avoid updates if we can. performance. 
+				if not(oldX and oldY) or ((math_abs(oldX - ourX) > .5) or (math_abs(oldY - ourY) > .5)) then -- avoid updates if we can. performance. 
 					bubbles[bubble]:ClearAllPoints()
 					bubbles[bubble]:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", ourX, ourY)
 				end
@@ -123,13 +129,10 @@ Updater.OnUpdate = function(self, elapsed)
 				bubbles[bubble]:SetBackdropBorderColor(0, 0, 0, .25)
 				bubbles[bubble]:Show() -- show the bubble again
 			end
-			-- bubble:SetBackdropColor(0, 0, 0, .5)
-			-- bubble:SetBackdropBorderColor(.15, .15, .15, .5)
 			bubble.text:SetTextColor(r, g, b, 0)
 		else
 			if bubbles[bubble]:IsShown() then
 				bubbles[bubble]:Hide()
-				--bubbles[bubble]:StartFadeOut()
 			else
 				bubbles[bubble].last = nil -- to avoid repeated messages not being shown
 			end
@@ -175,12 +178,6 @@ Updater.InitBubble = function(self, bubble)
 	bubbles[bubble].regions = {}
 	bubbles[bubble].color = { 1, 1, 1, 1 }
 	
-	-- This causes client crashes for some people (?)
-	--local flash = Engine:GetHandler("Flash")
-	--flash:ApplyFadersToFrame(bubbles[bubble])
-
-	--bubbles[bubble]:SetFadeOut(.1)
-
 	-- gather up info about the existing blizzard bubble
 	for i = 1, bubble:GetNumRegions() do
 		local region = select(i, bubble:GetRegions())
@@ -202,8 +199,7 @@ Module.OnInit = function(self, event, ...)
 	self.Updater = Updater
 	
 	-- this will be our bubble parent
-	self.BubbleBox = CreateFrame("Frame", nil, UIParent)
-	--self.BubbleBox = CreateFrame("Frame", nil, WorldFrame)
+	self.BubbleBox = Engine:CreateFrame("Frame", nil, "UIParent")
 	self.BubbleBox:SetAllPoints()
 	self.BubbleBox:Hide()
 	

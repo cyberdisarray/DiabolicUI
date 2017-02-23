@@ -99,23 +99,23 @@ local postCreateAuraButton = function(self, button)
 	local config = self.buttonConfig
 	local width, height = unpack(config.size)
 	local r, g, b = unpack(config.color)
-	local timerHeight = 8
 
-	local icon = button.Icon
-	local overlay = button.Overlay
-	local scaffold = button.Scaffold
-	local timer = button.Timer
-	local timerBar = button.Timer.Bar
-	local timerBarBackground = button.Timer.Background
-	local timerScaffold = button.Timer.Scaffold
+	local icon = button:GetElement("Icon")
+	local overlay = button:GetElement("Overlay")
+	local scaffold = button:GetElement("Scaffold")
+	local timer = button:GetElement("Timer")
+
+	local timerBar = timer.Bar
+	local timerBarBackground = timer.Background
+	local timerScaffold = timer.Scaffold
+
+	overlay:SetBackdrop(config.glow.backdrop)
 
 	local glow = button:CreateFrame()
 	glow:SetFrameLevel(button:GetFrameLevel())
 	glow:SetPoint("TOPLEFT", scaffold, "TOPLEFT", -4, 4)
 	glow:SetPoint("BOTTOMRIGHT", scaffold, "BOTTOMRIGHT", 3, -3)
 	glow:SetBackdrop(config.glow.backdrop)
-
-	icon:SetTexCoord(0, 1, 0, 1) 
 
 	local iconShade = scaffold:CreateTexture()
 	iconShade:SetDrawLayer("OVERLAY")
@@ -133,12 +133,7 @@ local postCreateAuraButton = function(self, button)
 	iconOverlay:SetDrawLayer("OVERLAY")
 	iconOverlay:SetAllPoints(icon)
 	iconOverlay:SetColorTexture(0, 0, 0, 1)
-
-	overlay:SetBackdrop(config.glow.backdrop)
-
-	timer:SetSize(width, timerHeight)
-	timer:Place("BOTTOM", 0, 0)
-	timerBar:SetSize(width - 2*2, timerHeight - 2*2)
+	icon.Overlay = iconOverlay
 
 	local timerOverlay = timer:CreateFrame()
 	timerOverlay:SetFrameLevel(timer:GetFrameLevel() + 3)
@@ -161,78 +156,83 @@ local postCreateAuraButton = function(self, button)
 		timerScaffold:SetBackdropBorderColor(r, g, b)
 	end
 
-	icon.Overlay = iconOverlay
-	button.Glow = glow
-	button.fullHeight = height
-	button.timerHeight = height - (timerHeight + 1)
-
+	button:SetElement("Glow", glow)
 	button:SetSize(width, height)
 	button:SetBorderColor(r * 4/5, g * 4/5, b * 4/5)
 end
 
 local postUpdateAuraButton = function(self, button, ...)
 	local updateType = ...
-	local timer = button.Timer
-	if timer:IsShown() then
-		button.Glow:SetPoint("BOTTOMRIGHT", button.Scaffold, "BOTTOMRIGHT", 3, -(3 + 1 + 8))
-	else
-		button.Glow:SetPoint("BOTTOMRIGHT", button.Scaffold, "BOTTOMRIGHT", 3, -3)
-	end
-	button.Scaffold:SetPoint("BOTTOMRIGHT", 0, (button.fullHeight - button.timerHeight))
-	
 	local config = self.buttonConfig
+
+	local icon = button:GetElement("Icon")
+	local glow = button:GetElement("Glow")
+	local timer = button:GetElement("Timer")
+	local scaffold = button:GetElement("Scaffold")
+
+	if timer:IsShown() then
+		glow:SetPoint("BOTTOMRIGHT", timer, "BOTTOMRIGHT", 3, -3)
+	else
+		glow:SetPoint("BOTTOMRIGHT", scaffold, "BOTTOMRIGHT", 3, -3)
+	end
+	
 	if self.hideTimerBar then
 		local color = config.color
 		button:SetBorderColor(color[1], color[2], color[3]) 
-		button.Icon:SetDesaturated(false)
-		button.Icon:SetVertexColor(.85, .85, .85)
+		icon:SetDesaturated(false)
+		icon:SetVertexColor(.85, .85, .85)
 	else
 		if button.isBuff then
 			if button.isStealable then
 				local color = C.General.Title
 				button:SetBorderColor(color[1], color[2], color[3]) 
-				button.Icon:SetDesaturated(false)
-				button.Icon:SetVertexColor(1, 1, 1)
-				button.Icon.Overlay:Hide()
+				icon:SetDesaturated(false)
+				icon:SetVertexColor(1, 1, 1)
+				icon.Overlay:Hide()
+
 			elseif button.isCastByPlayer then
 				local color = C.General.XP
 				button:SetBorderColor(color[1], color[2], color[3]) 
-				button.Icon:SetDesaturated(false)
-				button.Icon:SetVertexColor(1, 1, 1)
-				button.Icon.Overlay:Hide()
+				icon:SetDesaturated(false)
+				icon:SetVertexColor(1, 1, 1)
+				icon.Overlay:Hide()
+
 			else
+
 				local color = config.color
 				button:SetBorderColor(color[1], color[2], color[3]) 
 
-				if button.Icon:SetDesaturated(true) then
-					button.Icon:SetVertexColor(1, 1, 1)
-					button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
-					button.Icon.Overlay:Show()
+				if icon:SetDesaturated(true) then
+					icon:SetVertexColor(1, 1, 1)
+					icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
+					icon.Overlay:Show()
 				else
-					button.Icon:SetDesaturated(false)
-					button.Icon:SetVertexColor(.7, .7, .7)
-					button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
-					button.Icon.Overlay:Show()
+					icon:SetDesaturated(false)
+					icon:SetVertexColor(.7, .7, .7)
+					icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
+					icon.Overlay:Show()
 				end		
 			end
+
 		elseif button.isCastByPlayer then
 			button:SetBorderColor(.7, .1, .1)
-			button.Icon:SetDesaturated(false)
-			button.Icon:SetVertexColor(1, 1, 1)
-			button.Icon.Overlay:Hide()
+			icon:SetDesaturated(false)
+			icon:SetVertexColor(1, 1, 1)
+			icon.Overlay:Hide()
+
 		else
 			local color = config.color
 			button:SetBorderColor(color[1], color[2], color[3])
 
-			if button.Icon:SetDesaturated(true) then
-				button.Icon:SetVertexColor(1, 1, 1)
-				button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
-				button.Icon.Overlay:Show()
+			if icon:SetDesaturated(true) then
+				icon:SetVertexColor(1, 1, 1)
+				icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .5)
+				icon.Overlay:Show()
 			else
-				button.Icon:SetDesaturated(false)
-				button.Icon:SetVertexColor(.7, .7, .7)
-				button.Icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
-				button.Icon.Overlay:Show()
+				icon:SetDesaturated(false)
+				icon:SetVertexColor(.7, .7, .7)
+				icon.Overlay:SetVertexColor(C.General.UIOverlay[1], C.General.UIOverlay[2], C.General.UIOverlay[3], .25)
+				icon.Overlay:Show()
 			end		
 		end
 	end
@@ -396,8 +396,8 @@ local StyleLeftOrb = function(self, unit, index, numBars, inVehicle)
 	Buffs.config = config.buffs
 	Buffs.buttonConfig = config.buffs.button
 	Buffs.auraSize = config.buffs.button.size
-	Buffs.spacingH = config.buffs.spacing
-	Buffs.spacingV = config.buffs.spacing
+	Buffs.spacingH = config.buffs.spacingH
+	Buffs.spacingV = config.buffs.spacingV
 	Buffs.growthX = "RIGHT"
 	Buffs.growthY = "UP"
 	Buffs.filter = "HELPFUL|PLAYER"
@@ -420,8 +420,8 @@ local StyleLeftOrb = function(self, unit, index, numBars, inVehicle)
 	Debuffs.config = config.debuffs
 	Debuffs.buttonConfig = config.debuffs.button
 	Debuffs.auraSize = config.debuffs.button.size
-	Debuffs.spacingH = config.debuffs.spacing
-	Debuffs.spacingV = config.debuffs.spacing
+	Debuffs.spacingH = config.debuffs.spacingH
+	Debuffs.spacingV = config.debuffs.spacingV
 	Debuffs.growthX = "LEFT"
 	Debuffs.growthY = "UP"
 	Debuffs.filter = "HARMFUL"
@@ -549,8 +549,8 @@ local StyleRightOrb = function(self, unit, index, numBars, inVehicle)
 	Buffs.config = config.auras
 	Buffs.buttonConfig = config.auras.button
 	Buffs.auraSize = config.auras.button.size
-	Buffs.spacingH = config.auras.spacing
-	Buffs.spacingV = config.auras.spacing - 8
+	Buffs.spacingH = config.auras.spacingH
+	Buffs.spacingV = config.auras.spacingV
 	Buffs.growthX = "LEFT"
 	Buffs.growthY = "DOWN"
 	Buffs.filter = "HELPFUL"

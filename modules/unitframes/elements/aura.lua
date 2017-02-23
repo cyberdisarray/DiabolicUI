@@ -69,7 +69,17 @@ local formatTime = function(time)
 	end	
 end
 
+-- Cache of all aura buttons from all frames
 local auraCache = {}
+
+-- Caches of aura button elements
+local Elements = setmetatable({}, { __index = function(self, element) 
+	local tbl = {}
+
+	rawset(self, element, tbl)
+
+	return tbl
+end })
 
 
 --[[
@@ -198,6 +208,13 @@ local AURA_BACKDROP = {
 	}
 }
 
+Aura.SetElement = function(self, name, element)
+	Elements[self][name] = element
+end
+
+Aura.GetElement = function(self, name)
+	return Elements[self][name]
+end
 
 Aura.OnEnter = function(self)
 	local unit = self.unit
@@ -240,7 +257,7 @@ or function(self)
 end
 
 Aura.SetCooldownTimer = ENGINE_WOD and function(self, start, duration)
-	local cooldown = self.Cooldown
+	local cooldown = self:GetElement("Cooldown")
 	cooldown:SetSwipeColor(0, 0, 0, .75)
 	cooldown:SetDrawEdge(false)
 	cooldown:SetDrawBling(false)
@@ -258,7 +275,7 @@ Aura.SetCooldownTimer = ENGINE_WOD and function(self, start, duration)
 	end
 	
 end or function(self, start, duration)
-	local cooldown = self.Cooldown
+	local cooldown = self:GetElement("Cooldown")
 
 	-- Try to prevent the strange WotLK bug where the end shine effect
 	-- constantly pops up for a random period of time. 
@@ -281,8 +298,8 @@ Aura.UpdateTimer = function(self, elapsed)
 		if self.elapsed >= HZ then
 			self.timeLeft = self.expirationTime - GetTime()
 			if self.timeLeft > 0 then
-				self.Time:SetFormattedText(formatTime(self.timeLeft))
-				self.Timer.Bar:SetValue(self.timeLeft)
+				self:GetElement("Time"):SetFormattedText(formatTime(self.timeLeft))
+				self:GetElement("Timer").Bar:SetValue(self.timeLeft)
 
 				if self._owner.PostUpdateButton then
 					self._owner:PostUpdateButton(self, "Timer")
@@ -291,10 +308,12 @@ Aura.UpdateTimer = function(self, elapsed)
 				self:SetScript("OnUpdate", nil)
 				self:SetCooldownTimer(0, 0)
 
-				self.Timer:Hide()
-				self.Timer.Bar:SetValue(0)
-				self.Timer.Bar:SetMinMaxValues(0,0)
-				self.Time:SetText("")
+				local timer = self:GetElement("Timer")
+				timer:Hide()
+				timer.Bar:SetValue(0)
+				timer.Bar:SetMinMaxValues(0,0)
+
+				self:GetElement("Time"):SetText("")
 
 				if self._owner.PostUpdateButton then
 					self._owner:PostUpdateButton(self, "Timer")
@@ -312,11 +331,12 @@ Aura.SetTimer = function(self, fullDuration, expirationTime)
 		self.timeStarted = expirationTime - fullDuration
 		self.timeLeft = expirationTime - GetTime()
 
-		self.Timer.Bar:SetMinMaxValues(0, fullDuration)
-		self.Timer.Bar:SetValue(self.timeLeft)
+		local bar = self:GetElement("Timer").Bar
+		bar:SetMinMaxValues(0, fullDuration)
+		bar:SetValue(self.timeLeft)
 
 		if (not self._owner.hideTimerBar) then
-			self.Timer:Show()
+			self:GetElement("Timer"):Show()
 		end
 
 		self:SetScript("OnUpdate", self.UpdateTimer)
@@ -325,10 +345,12 @@ Aura.SetTimer = function(self, fullDuration, expirationTime)
 		self:SetScript("OnUpdate", nil)
 		self:SetCooldownTimer(0,0)
 
-		self.Time:SetText("")
-		self.Timer:Hide()
-		self.Timer.Bar:SetValue(0)
-		self.Timer.Bar:SetMinMaxValues(0,0)
+		self:GetElement("Time"):SetText("")
+		self:GetElement("Timer"):Hide()
+
+		local bar = self:GetElement("Timer").Bar
+		bar:SetValue(0)
+		bar:SetMinMaxValues(0,0)
 
 		self.fullDuration = 0
 		self.timeStarted = 0
@@ -339,7 +361,6 @@ Aura.SetTimer = function(self, fullDuration, expirationTime)
 		end
 	end
 end
-
 
 local CreateAuraButton = function(self)
 	local button = setmetatable(self:CreateFrame("Button"), Aura_MT)
@@ -394,27 +415,31 @@ local CreateAuraButton = function(self)
 
 	local Timer = button:CreateFrame()
 	Timer:Hide()
-	Timer:SetPoint("TOP", button, "BOTTOM", 0, -2)
-	Timer:SetSize(AURA_SIZE, 8)
+	Timer:SetPoint("TOPLEFT", Scaffold, "BOTTOMLEFT", 0, -1)
+	Timer:SetPoint("TOPRIGHT", Scaffold, "BOTTOMRIGHT", 0, -1)
+	Timer:SetPoint("BOTTOMLEFT", Scaffold, "BOTTOMLEFT", 0, -9)
+	Timer:SetPoint("BOTTOMRIGHT", Scaffold, "BOTTOMRIGHT", 0, -9)
 
 	local TimerScaffold = Timer:CreateFrame()
 	TimerScaffold:SetPoint("TOPLEFT", 0, 0)
 	TimerScaffold:SetPoint("BOTTOMRIGHT", 0, 0)
 	TimerScaffold:SetBackdrop(AURA_BACKDROP)
 	TimerScaffold:SetFrameLevel(Timer:GetFrameLevel() + 1)
+	Timer.Scaffold = TimerScaffold
 
 	local TimerBarBackground = TimerScaffold:CreateTexture()
 	TimerBarBackground:SetDrawLayer("BACKGROUND")
 	TimerBarBackground:SetPoint("TOPLEFT", 2, -2)
 	TimerBarBackground:SetPoint("BOTTOMRIGHT", -2, 2)
 	TimerBarBackground:SetTexture(BLANK_TEXTURE)
+	Timer.Background = TimerBarBackground
 
 	local TimerBar = Timer:CreateStatusBar()
 	TimerBar:SetStatusBarTexture(BLANK_TEXTURE)
-	TimerBar:SetSize(AURA_SIZE - 2*2, 8 - 2*2)
 	TimerBar:SetPoint("TOPLEFT", 2, -2)
 	TimerBar:SetPoint("BOTTOMRIGHT", -2, 2)
 	TimerBar:SetFrameLevel(Timer:GetFrameLevel() + 2)
+	Timer.Bar = TimerBar
 
 	button.SetBorderColor = function(self, r, g, b)
 		Scaffold:SetBackdropColor(r * 1/3, g * 1/3, b * 1/3)
@@ -426,18 +451,14 @@ local CreateAuraButton = function(self)
 		TimerBarBackground:SetVertexColor(r * 1/3, g * 1/3, b * 1/3)
 		TimerBar:SetStatusBarColor(r * 2/3, g * 2/3, b * 2/3)
 	end
-
-	button.Scaffold = Scaffold
-	button.Overlay = Overlay
-
-	button.Icon = Icon
-	button.Count = Count
-	button.Cooldown = Cooldown
-	button.Time = Time
-	button.Timer = Timer
-	button.Timer.Scaffold = TimerScaffold
-	button.Timer.Background = TimerBarBackground
-	button.Timer.Bar = TimerBar
+	
+	button:SetElement("Icon", Icon)
+	button:SetElement("Count", Count)
+	button:SetElement("Cooldown", Cooldown)
+	button:SetElement("Time", Time)
+	button:SetElement("Timer", Timer)
+	button:SetElement("Scaffold", Scaffold)
+	button:SetElement("Overlay", Overlay)
 
 	button:SetScript("OnEnter", Aura.OnEnter)
 	button:SetScript("OnLeave", Aura.OnLeave)
@@ -587,8 +608,8 @@ local Update = function(self, event, ...)
 					button.isBossDebuff = isBossDebuff
 					button.isCastByPlayer = isCastByPlayer
 
-					button.Icon:SetTexture(icon)
-					button.Count:SetText((count > 1) and count or "")
+					button:GetElement("Icon"):SetTexture(icon)
+					button:GetElement("Count"):SetText((count > 1) and count or "")
 					
 					button:SetTimer(duration, expirationTime)
 
@@ -655,11 +676,10 @@ local Update = function(self, event, ...)
 					button.isBossDebuff = isBossDebuff
 					button.isCastByPlayer = isCastByPlayer
 
-					button.Icon:SetTexture(icon)
-					button.Count:SetText((count > 1) and count or "")
+					button:GetElement("Icon"):SetTexture(icon)
+					button:GetElement("Count"):SetText((count > 1) and count or "")
 					
 					button:SetTimer(duration, expirationTime)
-
 					
 					if Auras.PostUpdateButton then
 						Auras:PostUpdateButton(button)
@@ -751,8 +771,8 @@ local Update = function(self, event, ...)
 					button.isBossDebuff = isBossDebuff
 					button.isCastByPlayer = isCastByPlayer
 
-					button.Icon:SetTexture(icon)
-					button.Count:SetText((count > 1) and count or "")
+					button:GetElement("Icon"):SetTexture(icon)
+					button:GetElement("Count"):SetText((count > 1) and count or "")
 					
 					button:SetTimer(duration, expirationTime)
 					
@@ -845,8 +865,8 @@ local Update = function(self, event, ...)
 					button.isBossDebuff = isBossDebuff
 					button.isCastByPlayer = isCastByPlayer
 
-					button.Icon:SetTexture(icon)
-					button.Count:SetText((count > 1) and count or "")
+					button:GetElement("Icon"):SetTexture(icon)
+					button:GetElement("Count"):SetText((count > 1) and count or "")
 					
 					button:SetTimer(duration, expirationTime)
 					

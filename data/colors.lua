@@ -406,14 +406,22 @@ local C = {
 		OutOfRange 		= prepare( 255/255,   0/255,   0/255 )  -- overlay or vertex coloring for spells with an out of range target
 	},
 
+	-- Timers (breath, fatigue, etc)
+	Timer = {
+		UNKNOWN 		= prepare( 179/255,  77/255,   0/255 ), -- fallback for timers and unknowns
+		EXHAUSTION 		= prepare( 179/255,  77/255,   0/255 ),
+		BREATH 			= prepare(   0/255, 128/255, 255/255 ),
+		DEATH 			= prepare( 217/255,  90/255,   0/255 ), 
+		FEIGNDEATH 		= prepare( 217/255,  90/255,   0/255 ) 
+	},
+
 	-- Threat Situation
 	-- similar returns as from GetThreatStatusColor(i)
 	Threat = {
-		[0] = prepare( 175/255, 165/255, 155/255 ), -- gray, low on threat
-		--[1] = prepare( 255/255, 255/255, 120/255 ), -- light yellow, you are overnuking 
-		[1] = prepare( 255/255, 128/255,  64/255 ), -- light yellow, you are overnuking 
-		[2] = prepare( 255/255,  64/255,  12/255 ), -- orange, tanks that are losing threat
-		[3] = prepare( 255/255,   0/255,   0/255 ) -- red, you securely tanking, or totally fucked :) 
+		[0] 			= prepare( 175/255, 165/255, 155/255 ), -- gray, low on threat
+		[1] 			= prepare( 255/255, 128/255,  64/255 ), -- light yellow, you are overnuking 
+		[2] 			= prepare( 255/255,  64/255,  12/255 ), -- orange, tanks that are losing threat
+		[3] 			= prepare( 255/255,   0/255,   0/255 ) -- red, you securely tanking, or totally fucked :) 
 	},
 
 	-- Zone Coloring

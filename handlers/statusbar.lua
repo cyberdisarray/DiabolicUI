@@ -24,7 +24,7 @@ StatusBar.Update = function(self, elapsed)
 	local value = self._ignoresmoothing and self._value or self._displayvalue
 	local min, max = self._min, self._max
 	local orientation = self._orientation
-	local width, height = self.scaffold:GetSize()
+	local width, height = self:GetSize() 
 	local bar = self.bar
 	local spark = self.spark
 	
@@ -123,7 +123,7 @@ StatusBar.Update = function(self, elapsed)
 		end
 	end
 	
-	if value == max or value == min then
+	if (value == max) or (value == min) then
 		if spark:IsShown() then
 			spark:Hide()
 			spark:SetAlpha(spark._min_alpha)
@@ -363,15 +363,42 @@ StatusBar.SetHeight = function(self, ...)
 end
 
 StatusBar.GetHeight = function(self, ...)
-	return self.scaffold:GetHeight(...)
+	local top = self:GetTop()
+	local bottom = self:GetBottom()
+	if top and bottom then
+		return top - bottom
+	else
+		return self.scaffold:GetHeight(...)
+	end
 end
 
 StatusBar.GetWidth = function(self, ...)
-	return self.scaffold:GetWidth(...)
+	local left = self:GetLeft()
+	local right = self:GetRight()
+	if left and right then
+		return right - left
+	else
+		return self.scaffold:GetWidth(...)
+	end
 end
 
 StatusBar.GetSize = function(self, ...)
-	return self.scaffold:GetSize(...)
+	local width, height
+
+	local top = self:GetTop()
+	local bottom = self:GetBottom()
+	local left = self:GetLeft()
+	local right = self:GetRight()
+
+	if left and right then
+		width = right - left
+	end
+
+	if top and bottom then
+		height = top - bottom
+	end
+
+	return width or self.scaffold:GetWidth(), height or self.scaffold:GetHeight()
 end
 
 StatusBar.SetFrameLevel = function(self, ...)

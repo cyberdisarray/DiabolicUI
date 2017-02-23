@@ -105,9 +105,10 @@ Engine:NewStaticConfig("UnitFrames", {
 					position = { "TOPRIGHT", "Minimap", "TOPLEFT", -10, -10 },
 					positionWithoutMinimap = { "TOPRIGHT", "UICenter", "TOPRIGHT", -20, -64 }, -- same pos as the minimap
 					size = { 200, 200 },
-					spacing = 4,
+					spacingH = 4, 
+					spacingV = 4, 
 					button = {
-						size = { 30, 30 + 1 + 8 },
+						size = { 30, 30 },
 						color = C.General.UIBorder,
 						glow = {
 							backdrop = {
@@ -139,14 +140,6 @@ Engine:NewStaticConfig("UnitFrames", {
 								}
 							}
 						},
-						icon = {
-							texcoords = { 5/64, 59/64, 5/64, 59/64 },
-							size = { 28 - 4, 28 - 4 },
-							point = { "CENTER", 0, 0 }
-						},
-						timer = {
-
-						},
 						shade = {
 							texture = path .. [[textures\DiabolicUI_Shade_64x64.tga]]
 						}
@@ -157,17 +150,17 @@ Engine:NewStaticConfig("UnitFrames", {
 					}
 				},
 				buffs = {
-					position = { "BOTTOMLEFT", "Main", "TOPLEFT", 16, 36 },
-					--position = { "BOTTOMLEFT", "Main", "TOPLEFT", 26, 46 },
+					position = { "BOTTOMLEFT", "Main", "TOPLEFT", 26, 46 },
 					size = { 
 						["1"] = { math_floor((BUTTON_SIZE_SINGLE*NUM_ACTIONBAR_SLOTS + bar_padding*(NUM_ACTIONBAR_SLOTS-1))/2) -(16 + 10), 38*2 + 8 + 3 + 2 },
 						["2"] = { math_floor((BUTTON_SIZE_DOUBLE*NUM_ACTIONBAR_SLOTS + bar_padding*(NUM_ACTIONBAR_SLOTS-1))/2) -(16 + 10), 38*2 + 8 + 3 + 2 },
 						["3"] = { math_floor((BUTTON_SIZE_TRIPLE*NUM_ACTIONBAR_SLOTS + bar_padding*(NUM_ACTIONBAR_SLOTS-1))/2) -(16  + 10), 38*2 + 8 + 3 + 2 },
 						["vehicle"] = { math_floor((BUTTON_SIZE_VEHICLE*NUM_VEHICLE_SLOTS + bar_padding*(NUM_VEHICLE_SLOTS-1))/2) -(16 + 10), 38*2 + 8 + 3 + 2 }
 					},
-					spacing = 4,
+					spacingH = 4, 
+					spacingV = 12, 
 					button = {
-						size = { 30, 30 + 1 + 8 },
+						size = { 30, 30 },
 						color = C.General.XP,
 						glow = {
 							backdrop = {
@@ -199,14 +192,6 @@ Engine:NewStaticConfig("UnitFrames", {
 								}
 							}
 						},
-						icon = {
-							texcoords = { 5/64, 59/64, 5/64, 59/64 },
-							size = { 28 - 4, 28 - 4 },
-							point = { "CENTER", 0, 0 }
-						},
-						timer = {
-
-						},
 						shade = {
 							texture = path .. [[textures\DiabolicUI_Shade_64x64.tga]]
 						}
@@ -217,16 +202,17 @@ Engine:NewStaticConfig("UnitFrames", {
 					}
 				},
 				debuffs = {
-					position = { "BOTTOMRIGHT", "Main", "TOPRIGHT", -16, 36 },
+					position = { "BOTTOMRIGHT", "Main", "TOPRIGHT", -16, 46 },
 					size = { 
 						["1"] = { math_floor((BUTTON_SIZE_SINGLE*NUM_ACTIONBAR_SLOTS + bar_padding*(NUM_ACTIONBAR_SLOTS-1))/2) -(16 + 10), 38*2 + 8 + 3 + 2 },
 						["2"] = { math_floor((BUTTON_SIZE_DOUBLE*NUM_ACTIONBAR_SLOTS + bar_padding*(NUM_ACTIONBAR_SLOTS-1))/2) -(16 + 10), 38*2 + 8 + 3 + 2 },
 						["3"] = { math_floor((BUTTON_SIZE_TRIPLE*NUM_ACTIONBAR_SLOTS + bar_padding*(NUM_ACTIONBAR_SLOTS-1))/2) -(16  + 10), 38*2 + 8 + 3 + 2 },
 						["vehicle"] = { math_floor((BUTTON_SIZE_VEHICLE*NUM_VEHICLE_SLOTS + bar_padding*(NUM_VEHICLE_SLOTS-1))/2) -(16 + 10), 38*2 + 8 + 3 + 2 }
 					},
-					spacing = 3,
+					spacingH = 4, 
+					spacingV = 12, 
 					button = {
-						size = { 30, 30 + 1 + 8 },
+						size = { 30, 30 },
 						color = C.General.DarkRed,
 						glow = {
 							backdrop = {
@@ -257,14 +243,6 @@ Engine:NewStaticConfig("UnitFrames", {
 									bottom = 0
 								}
 							}
-						},
-						icon = {
-							texcoords = { 5/64, 59/64, 5/64, 59/64 },
-							size = { 28 - 4, 28 - 4 },
-							point = { "CENTER", 0, 0 }
-						},
-						timer = {
-
 						},
 						shade = {
 							texture = path .. [[textures\DiabolicUI_Shade_64x64.tga]]
@@ -444,9 +422,10 @@ Engine:NewStaticConfig("UnitFrames", {
 				auras = {
 					position = { "TOP", 0, -104 },
 					size = { 30*8 + 4*7 + 1, 44*3 },
-					spacing = 4,
+					spacingH = 4, 
+					spacingV = 12, 
 					button = {
-						size = { 30, 30 + 1 + 8 },
+						size = { 30, 30 },
 						color = { (C.Status.Dead[1]/3 + .3)*.7, (C.Status.Dead[2]/3 + .3)*.7, (C.Status.Dead[3]/3 + .3)*.7 },  -- C.General.XP,
 						glow = {
 							backdrop = {
@@ -477,14 +456,6 @@ Engine:NewStaticConfig("UnitFrames", {
 									bottom = 0
 								}
 							}
-						},
-						icon = {
-							texcoords = { 5/64, 59/64, 5/64, 59/64 },
-							size = { 28 - 4, 28 - 4 },
-							point = { "CENTER", 0, 0 }
-						},
-						timer = {
-
 						},
 						shade = {
 							texture = path .. [[textures\DiabolicUI_Shade_64x64.tga]]

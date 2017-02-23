@@ -1,29 +1,17 @@
 local _, Engine = ...
 local Module = Engine:NewModule("MirrorTimers")
+local C = Engine:GetStaticConfig("Data: Colors")
 
 -- Lua API
 local _G = _G
+local math_floor = math.floor
+local table_insert = table.insert
+local table_sort = table.sort
+local table_wipe = table.wipe
+local unpack = unpack
 
 -- WoW API
-local floor = math.floor
-local unpack = unpack
-local tsort, twipe = table.sort, table.wipe
 local hooksecurefunc = hooksecurefunc
-
-
-local colors = {
-	UNKNOWN = { .7, .3, 0 }, -- fallback for timers and unknowns
-	EXHAUSTION = { .7, .3, 0 }, -- 1, .9, 0
-	BREATH = { 0, .5, 1 },
-	DEATH = { .85, .35, 0 }, -- 1, .7, 0
-	FEIGNDEATH = { .85, .35, 0 } -- 1, .7, 0
-}
-
-
--- return a correct color value, since blizz keeps changing them by 0.01 and such
-local real_color = function(r, g, b)
-	return floor(r*100 + .5)/100, floor(g*100 + .5)/100, floor(b*100 + .5)/100
-end
 
 local sort = function(a, b)
 	if a.type == b.type then
@@ -54,19 +42,19 @@ Module.UpdateAnchors = function(self)
 	local timers = self.timers
 	local order = self.order or {}
 
-	twipe(order)
+	table_wipe(order)
 	
 	-- parse mirror timers	
 	for frame,timer in pairs(timers) do
 		if frame:IsShown() then
-			tinsert(order, timer) -- only include visible timers
+			table_insert(order, timer) -- only include visible timers
 			frame:ClearAllPoints()
 		end
 	end	
 	
 	-- sort and arrange visible timers
 	if #order > 0 then
-		tsort(order, sort) -- sort by type -> id
+		table_sort(order, sort) -- sort by type -> id
 		order[1].frame:SetPoint(unpack(config.position))
 
 		if #order > 1 then
@@ -75,24 +63,8 @@ Module.UpdateAnchors = function(self)
 			end
 		end
 	end
-
-	-- defaults
-	-- MirrorTimer1 { "TOP", UIParent, "TOP", 0, -96 }
-	-- TimerTrackerTimer1 { "TOP", UIParent, "TOP", 0, -155 - (24*numTimers }
 end
 
---[[
-Message: ...\AddOns\DiabolicUI\modules\blizzard\mirrortimers.lua:89: attempt to index field 'border' (a nil value)
-Time: 07/20/16 19:51:51
-Count: 1
-Stack: [C]: ?
-...\AddOns\DiabolicUI\modules\blizzard\mirrortimers.lua:89: in function `Skin'
-...\AddOns\DiabolicUI\modules\blizzard\mirrortimers.lua:143: in function `StartTimer_OnShow'
-...\AddOns\DiabolicUI\modules\blizzard\mirrortimers.lua:158: in function <...\AddOns\DiabolicUI\modules\blizzard\mirrortimers.lua:158>
-[C]: ?
-[C]: in function `Show'
-Interface\FrameXML\Timer.lua:107: in function <Interface\FrameXML\Timer.lua:48>
-]]
 Module.Skin = function(self, frame)
 	local config = self.config
 
@@ -128,8 +100,6 @@ Module.Skin = function(self, frame)
 	hooksecurefunc(timer.bar, "SetValue", function(...) self:UpdateTimer(frame) end)
 	hooksecurefunc(timer.bar, "SetMinMaxValues", function(...) self:UpdateTimer(frame) end)
 	
-	-- frame size 202, 26
-	-- bar size 195, 13
 	self:UpdateAnchors()
 end
 
@@ -149,7 +119,7 @@ Module.MirrorTimer_Show = function(self, timer, value, maxvalue, scale, paused, 
 			self:Skin(frame)
 		end
 		if frame:IsShown() and timer and frame.timer == timer then
-			local color = colors[frame.timer]
+			local color = C.Timer[frame.timer]
 			if color then
 				timers[frame].bar:SetStatusBarColor(unpack(color))
 			end

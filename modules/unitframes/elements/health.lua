@@ -4,22 +4,25 @@ local C = Engine:GetStaticConfig("Data: Colors")
 local F = Engine:GetStaticConfig("Data: Functions")
 
 -- Lua API
-local tostring, tonumber = tostring, tonumber
-local pairs, unpack = pairs, unpack
-local floor = math.floor
+local _G = _G
+local math_floor = math.floor
+local pairs = pairs
+local tonumber = tonumber
+local tostring = tostring
+local unpack = unpack
 
 -- WoW API
-local UnitClassification = UnitClassification
-local UnitHealth = UnitHealth
-local UnitHealthMax = UnitHealthMax
-local UnitIsConnected = UnitIsConnected
-local UnitIsDeadOrGhost = UnitIsDeadOrGhost
-local UnitIsPlayer = UnitIsPlayer
-local UnitIsUnit = UnitIsUnit
-local UnitIsTapDenied = UnitIsTapDenied 
-local UnitLevel = UnitLevel
-local UnitPlayerControlled = UnitPlayerControlled
-local UnitReaction = UnitReaction
+local UnitClassification = _G.UnitClassification
+local UnitHealth = _G.UnitHealth
+local UnitHealthMax = _G.UnitHealthMax
+local UnitIsConnected = _G.UnitIsConnected
+local UnitIsDeadOrGhost = _G.UnitIsDeadOrGhost
+local UnitIsPlayer = _G.UnitIsPlayer
+local UnitIsUnit = _G.UnitIsUnit
+local UnitIsTapDenied = _G.UnitIsTapDenied 
+local UnitLevel = _G.UnitLevel
+local UnitPlayerControlled = _G.UnitPlayerControlled
+local UnitReaction = _G.UnitReaction
 
 
 Update = function(self, event, ...)
@@ -34,7 +37,7 @@ Update = function(self, event, ...)
 	local health = UnitHealth(unit)
 	local healthmax = UnitHealthMax(unit)
 
-	local object_type = Health:GetObjectType()
+	local objectType = Health:GetObjectType()
 	
 	if dead then
 		health = 0
@@ -44,12 +47,12 @@ Update = function(self, event, ...)
 	Health:SetMinMaxValues(0, healthmax)
 	Health:SetValue(health)
 
-	if object_type == "Orb" then
+	if (objectType == "Orb") then
 		if Health.useClassColor and UnitIsPlayer(unit) then
 			local _, class = UnitClass(unit)
 			if C.Orb[class] then
 				for i,v in pairs(C.Orb[class]) do
-					Health:SetStatusBarColor(unpack(v))
+					Health:SetStatusBarColor(v[1], v[2], v[3], v[4], v[5])
 				end
 			else
 				r, g, b = unpack(C.Class[class] or C.Class.UNKNOWN)
@@ -57,10 +60,10 @@ Update = function(self, event, ...)
 			end
 		else
 			for i,v in pairs(C.Orb.HEALTH) do
-				Health:SetStatusBarColor(unpack(v))
+				Health:SetStatusBarColor(v[1], v[2], v[3], v[4], v[5])
 			end
 		end
-	elseif object_type == "StatusBar" then
+	elseif (objectType == "StatusBar") then
 		local r, g, b
 		if not UnitIsConnected(unit) then
 			r, g, b = unpack(C.Status.Disconnected)
@@ -71,7 +74,7 @@ Update = function(self, event, ...)
 		elseif UnitIsPlayer(unit) then
 			local _, class = UnitClass(unit)
 			r, g, b = unpack(C.Class[class] or C.Class.UNKNOWN)
-		elseif UnitPlayerControlled(unit) and not UnitIsPlayer(unit) then
+		elseif UnitPlayerControlled(unit) and (not UnitIsPlayer(unit)) then
 			if UnitIsFriend(unit, "player") then
 				local _, class = UnitClass(unit)
 				r, g, b = unpack(C.Reaction[5])
@@ -99,9 +102,9 @@ Update = function(self, event, ...)
 			if Health.Value.showDeficit then
 				if Health.Value.showPercent then
 					if Health.Value.showMaximum then
-						Health.Value:SetFormattedText("%s / %s - %d%%", F.Short(healthmax - health), F.Short(healthmax), floor(health/healthmax * 100))
+						Health.Value:SetFormattedText("%s / %s - %d%%", F.Short(healthmax - health), F.Short(healthmax), math_floor(health/healthmax * 100))
 					else
-						Health.Value:SetFormattedText("%s / %d%%", F.Short(healthmax - health), floor(health/healthmax * 100))
+						Health.Value:SetFormattedText("%s / %d%%", F.Short(healthmax - health), math_floor(health/healthmax * 100))
 					end
 				else
 					if Health.Value.showMaximum then
@@ -113,11 +116,11 @@ Update = function(self, event, ...)
 			else
 				if Health.Value.showPercent then
 					if Health.Value.showMaximum then
-						Health.Value:SetFormattedText("%s / %s - %d%%", F.Short(health), F.Short(healthmax), floor(health/healthmax * 100))
+						Health.Value:SetFormattedText("%s / %s - %d%%", F.Short(health), F.Short(healthmax), math_floor(health/healthmax * 100))
 					elseif Health.Value.hideMinimum then
-						Health.Value:SetFormattedText("%d%%", floor(health/healthmax * 100))
+						Health.Value:SetFormattedText("%d%%", math_floor(health/healthmax * 100))
 					else
-						Health.Value:SetFormattedText("%s / %d%%", F.Short(health), floor(health/healthmax * 100))
+						Health.Value:SetFormattedText("%s / %d%%", F.Short(health), math_floor(health/healthmax * 100))
 					end
 				else
 					if Health.Value.showMaximum then

@@ -2308,7 +2308,7 @@ ButtonWidget.New = function(self, buttonType, id, header)
 		button.cooldown:SetDrawEdge(false)
 		button.cooldown:SetHideCountdownNumbers(false) -- todo: add better numbering
 
-		button.cooldown.shine = Engine:GetHandler("Flash"):ApplyShine(button, 1, .75, 3) -- alpha, duration, scale
+		button.cooldown.shine = Engine:GetHandler("Shine"):ApplyShine(button, 1, .75, 3) -- alpha, duration, scale
 		button.cooldown.shine:SetFrameLevel(button:GetFrameLevel() + 4)
 		button.cooldown:SetScript("OnCooldownDone", function(self)
 			-- don't shine for loss of control cooldowns
